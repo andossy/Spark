@@ -1,0 +1,659 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>generate_parameters &mdash; hpc-ca geometry utils 0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="hpc-ca geometry utils 0.1 documentation" href="../index.html"/>
+        <link rel="up" title="Module code" href="index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> hpc-ca geometry utils
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../generate_cru_geometry_file.html">generate_cru_geometry_file module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generate_parameters.html">generate_parameters module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../geometry_util.html">geometry_util module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../growth.html">growth module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../h5files.html">h5files module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../visualize_geometry.html">visualize_geometry module</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">hpc-ca geometry utils</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>generate_parameters</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for generate_parameters</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">h5files</span> <span class="k">import</span> <span class="n">ParameterFile</span>
+
+<span class="c1"># Global parameters and type defs</span>
+<span class="n">DOMAINS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;cyt&quot;</span><span class="p">,</span> <span class="s2">&quot;cleft&quot;</span><span class="p">,</span> <span class="s2">&quot;jsr&quot;</span><span class="p">,</span> <span class="s2">&quot;nsr&quot;</span><span class="p">,</span> <span class="s2">&quot;tt&quot;</span><span class="p">]</span>
+<span class="n">domain_id</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span>
+<span class="n">float_type</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span>
+<span class="n">float_type</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span>
+
+
+<div class="viewcode-block" id="DomainSpecies"><a class="viewcode-back" href="../generate_parameters.html#generate_parameters.DomainSpecies">[docs]</a><span class="k">class</span> <span class="nc">DomainSpecies</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Container for a specific species in a given domain.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">fixed</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param domain: str, name of domain species resides in </span>
+<span class="sd">        :param species: str, name of species</span>
+<span class="sd">        :param init: float, inital concentration</span>
+<span class="sd">        :param sigma: float, diffusivity?</span>
+<span class="sd">        :param fixed: bool, ?</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Sanity checks on input</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;domain must be given as str&quot;</span>
+        <span class="k">assert</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">DOMAINS</span><span class="p">,</span> <span class="s2">&quot;domain not recognized&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;species must be given as str&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">init</span> <span class="o">&gt;</span> <span class="mf">0.</span>
+        <span class="k">assert</span> <span class="n">sigma</span> <span class="o">&gt;=</span> <span class="mf">0.0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">species</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">domain</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="n">sigma</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init</span> <span class="o">=</span> <span class="n">init</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fixed</span> <span class="o">=</span> <span class="n">fixed</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">domain_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span></div>
+
+<div class="viewcode-block" id="BufferReaction"><a class="viewcode-back" href="../generate_parameters.html#generate_parameters.BufferReaction">[docs]</a><span class="k">class</span> <span class="nc">BufferReaction</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Container class for a buffer reaction in a given domain.&quot;&quot;&quot;</span> 
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">bound_species</span><span class="p">,</span> <span class="n">tot</span><span class="p">,</span> <span class="n">k_on</span><span class="p">,</span> <span class="n">k_off</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param domain: str, where the buffering is taking place</span>
+<span class="sd">        :param species: str, name of buffer species </span>
+<span class="sd">        :param bound_species: str, name of species being bound</span>
+<span class="sd">        :param tot: float, total concentration of buffer </span>
+<span class="sd">        :param k_on: float, association rate coefficient</span>
+<span class="sd">        :param k_off: float, dissociation rate coefficient</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Sanity checks on input</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;domain must be given as str&quot;</span>
+        <span class="k">assert</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">DOMAINS</span><span class="p">,</span> <span class="s2">&quot;domain not recognized&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bound_species</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">and</span> <span class="n">v</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">[</span><span class="n">tot</span><span class="p">,</span> <span class="n">k_on</span><span class="p">,</span> <span class="n">k_off</span><span class="p">])</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">domain</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">species</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bound_species</span> <span class="o">=</span> <span class="n">bound_species</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tot</span> <span class="o">=</span> <span class="n">tot</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k_on</span> <span class="o">=</span> <span class="n">k_on</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k_off</span> <span class="o">=</span> <span class="n">k_off</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">kd</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_off</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">k_on</span></div>
+
+<div class="viewcode-block" id="RyR"><a class="viewcode-back" href="../generate_parameters.html#generate_parameters.RyR">[docs]</a><span class="k">class</span> <span class="nc">RyR</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Container class for a ryanodine receptor.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Kd_open</span><span class="o">=</span><span class="mf">127.92</span><span class="p">,</span> <span class="n">Kd_close</span><span class="o">=</span><span class="mf">62.5</span><span class="p">,</span>
+                 <span class="n">k_min_open</span><span class="o">=</span><span class="mf">1.e-4</span><span class="p">,</span> <span class="n">k_max_open</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span>
+                 <span class="n">k_min_close</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">k_max_close</span><span class="o">=</span><span class="mf">10.</span><span class="p">,</span>
+                 <span class="n">n_open</span><span class="o">=</span><span class="mf">2.8</span><span class="p">,</span> <span class="n">n_close</span><span class="o">=-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">i_unitary</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>   
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param Kd_open: float,</span>
+<span class="sd">        :param Kd_close: float,</span>
+<span class="sd">        :param k_min_open: float,</span>
+<span class="sd">        :param k_max_open: float,</span>
+<span class="sd">        :param k_min_close: float,</span>
+<span class="sd">        :param k_max_close: float,</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">boundary</span> <span class="o">=</span> <span class="s2">&quot;ryr&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="s2">&quot;Ca&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">i_unitary</span> <span class="o">=</span> <span class="n">i_unitary</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">Kd_open</span> <span class="o">=</span> <span class="n">Kd_open</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k_min_open</span> <span class="o">=</span> <span class="n">k_min_open</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k_max_open</span> <span class="o">=</span> <span class="n">k_max_open</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_open</span> <span class="o">=</span> <span class="n">n_open</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">Kd_close</span> <span class="o">=</span> <span class="n">Kd_close</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k_min_close</span> <span class="o">=</span> <span class="n">k_min_close</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k_max_close</span> <span class="o">=</span> <span class="n">k_max_close</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_close</span> <span class="o">=</span> <span class="n">n_close</span></div>
+
+
+<div class="viewcode-block" id="SERCA"><a class="viewcode-back" href="../generate_parameters.html#generate_parameters.SERCA">[docs]</a><span class="k">class</span> <span class="nc">SERCA</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Container class for SERCA channels&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v_cyt_to_A_sr</span><span class="o">=</span><span class="mf">307.</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">75.</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param v_cyt_to_A_sr: float,</span>
+<span class="sd">        :param density: float,</span>
+<span class="sd">        :param scale: float,</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">boundary</span> <span class="o">=</span> <span class="s2">&quot;serca&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="s2">&quot;Ca&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_cyt_to_A_sr</span> <span class="o">=</span> <span class="n">v_cyt_to_A_sr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">density</span> <span class="o">=</span> <span class="n">density</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale</span> <span class="o">=</span> <span class="n">scale</span></div>
+
+<div class="viewcode-block" id="write_species_params"><a class="viewcode-back" href="../generate_parameters.html#generate_parameters.write_species_params">[docs]</a><span class="k">def</span> <span class="nf">write_species_params</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">domains</span><span class="p">,</span> <span class="n">domain_species</span><span class="p">,</span> 
+                         <span class="n">buffer_reactions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">boundary_fluxes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Take lists of species parameters and write them to given outfile.</span>
+
+<span class="sd">    :param filename: str, name of outfile</span>
+<span class="sd">    :param domains: list of strings</span>
+<span class="sd">    :param domain_species: list of Species objects</span>
+<span class="sd">    :param buffer_reactions: list of BufferReaction objects</span>
+<span class="sd">    :param boundary_fluxes: list of Flux objects (RyR/SERCA)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">boundary_fluxes</span> <span class="o">=</span> <span class="n">boundary_fluxes</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="n">buffer_reactions</span> <span class="o">=</span> <span class="n">buffer_reactions</span> <span class="ow">or</span> <span class="p">[]</span>
+   
+    <span class="c1"># Sanity checks on input </span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">domains</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">domain_species</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">buffer_reactions</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">domains</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">DomainSpecies</span><span class="p">)</span> <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">domain_species</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">br</span><span class="p">,</span> <span class="n">BufferReaction</span><span class="p">)</span> <span class="k">for</span> <span class="n">br</span> <span class="ow">in</span> <span class="n">buffer_reactions</span><span class="p">)</span>
+
+    <span class="c1"># Collect all distinct species and domains</span>
+    <span class="n">all_domains</span> <span class="o">=</span> <span class="n">domains</span> 
+    <span class="n">species</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+    <span class="n">domains</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+    <span class="n">diffusive_species</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">domain_species</span><span class="p">:</span>
+        <span class="n">species</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">species</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">domain</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">ds</span><span class="o">.</span><span class="n">domain</span> <span class="ow">in</span> <span class="n">all_domains</span><span class="p">,</span> <span class="s2">&quot;domain </span><span class="si">{}</span><span class="s2"> is not among the &quot;</span>\
+               <span class="s2">&quot;original domains&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">species</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">domain</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">domains</span><span class="p">:</span>
+            <span class="n">domains</span><span class="p">[</span><span class="n">ds</span><span class="o">.</span><span class="n">domain</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">species</span><span class="o">=</span><span class="n">OrderedDict</span><span class="p">(),</span>
+                                      <span class="n">buffers</span><span class="o">=</span><span class="n">OrderedDict</span><span class="p">(),</span>
+                                      <span class="n">diffusive</span><span class="o">=</span><span class="n">OrderedDict</span><span class="p">())</span>
+
+        <span class="n">domains</span><span class="p">[</span><span class="n">ds</span><span class="o">.</span><span class="n">domain</span><span class="p">][</span><span class="s2">&quot;species&quot;</span><span class="p">][</span><span class="n">ds</span><span class="o">.</span><span class="n">species</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span>
+        <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">sigma</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">domains</span><span class="p">[</span><span class="n">ds</span><span class="o">.</span><span class="n">domain</span><span class="p">][</span><span class="s2">&quot;diffusive&quot;</span><span class="p">][</span><span class="n">ds</span><span class="o">.</span><span class="n">species</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span> 
+            <span class="n">diffusive_species</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">species</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">br</span> <span class="ow">in</span> <span class="n">buffer_reactions</span><span class="p">:</span>
+        <span class="c1"># Check buffer reactions are consistent with domains/species</span>
+        <span class="k">assert</span> <span class="n">br</span><span class="o">.</span><span class="n">domain</span> <span class="ow">in</span> <span class="n">domains</span><span class="p">,</span> <span class="s2">&quot;buffer domain not recognized&quot;</span>
+        <span class="k">assert</span> <span class="n">br</span><span class="o">.</span><span class="n">species</span> <span class="ow">in</span> <span class="n">species</span><span class="p">,</span> <span class="s2">&quot;buffer species not recognized&quot;</span>
+        <span class="k">assert</span> <span class="n">br</span><span class="o">.</span><span class="n">bound_species</span> <span class="ow">in</span> <span class="n">species</span><span class="p">,</span> <span class="s2">&quot;bound species not recognized&quot;</span>
+        <span class="k">assert</span> <span class="n">br</span><span class="o">.</span><span class="n">species</span> <span class="ow">in</span> <span class="n">domains</span><span class="p">[</span><span class="n">br</span><span class="o">.</span><span class="n">domain</span><span class="p">][</span><span class="s2">&quot;species&quot;</span><span class="p">],</span> \
+               <span class="s2">&quot;buffer species domain mismatch&quot;</span>
+        <span class="k">assert</span> <span class="n">br</span><span class="o">.</span><span class="n">bound_species</span> <span class="ow">in</span> <span class="n">domains</span><span class="p">[</span><span class="n">br</span><span class="o">.</span><span class="n">domain</span><span class="p">][</span><span class="s2">&quot;species&quot;</span><span class="p">],</span> \
+               <span class="s2">&quot;bound species domain mismatch&quot;</span>
+
+        <span class="n">domains</span><span class="p">[</span><span class="n">br</span><span class="o">.</span><span class="n">domain</span><span class="p">][</span><span class="s2">&quot;buffers&quot;</span><span class="p">][</span><span class="n">br</span><span class="o">.</span><span class="n">species</span><span class="p">]</span> <span class="o">=</span> <span class="n">br</span>
+
+        <span class="c1"># Update inital value of buffers</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">domains</span><span class="p">[</span><span class="n">br</span><span class="o">.</span><span class="n">domain</span><span class="p">][</span><span class="s2">&quot;species&quot;</span><span class="p">][</span><span class="n">br</span><span class="o">.</span><span class="n">species</span><span class="p">]</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">domains</span><span class="p">[</span><span class="n">br</span><span class="o">.</span><span class="n">domain</span><span class="p">][</span><span class="s2">&quot;species&quot;</span><span class="p">][</span><span class="n">br</span><span class="o">.</span><span class="n">bound_species</span><span class="p">]</span>
+        <span class="n">b</span><span class="o">.</span><span class="n">init</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">tot</span><span class="o">*</span><span class="n">s</span><span class="o">.</span><span class="n">init</span><span class="o">/</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">init</span> <span class="o">+</span> <span class="n">br</span><span class="o">.</span><span class="n">kd</span><span class="p">)</span>
+    
+    <span class="c1"># Lump species name in different domains</span>
+    <span class="n">max_num_species</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">domains</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s2">&quot;species&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">domains</span><span class="p">)</span>
+    <span class="n">min_num_species</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">domains</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s2">&quot;species&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">domains</span><span class="p">)</span>
+    
+    <span class="c1"># FIXME: Improve deduction of distinct species.</span>
+    <span class="c1"># 1) Start with the domain with most species.</span>
+    <span class="c1"># 2) Find all diffusive species. Iterate over the other domains and try</span>
+    <span class="c1">#    bining species together.</span>
+    <span class="c1"># 3) Need to do 2) in 2 sweeps.</span>
+    <span class="c1">#    a) Identify what species in the domain have the same(ish) name and bin</span>
+    <span class="c1">#       these together</span>
+    <span class="c1">#    b) Bin the other species together. If there are none diffusive species.</span>
+    <span class="c1">#        Move them to the end</span>
+    <span class="c1"># print &quot;max_num_species&quot;, max_num_species</span>
+    <span class="c1"># print &quot;min_num_species&quot;, min_num_species</span>
+
+
+
+    <span class="n">distinct_species</span> <span class="o">=</span> <span class="p">[</span><span class="nb">set</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">min_num_species</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">domains</span><span class="p">:</span>
+        <span class="n">sps</span> <span class="o">=</span> <span class="n">domains</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="s2">&quot;species&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="nb">print</span> <span class="n">domain</span><span class="p">,</span> <span class="n">sps</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">min_num_species</span><span class="p">):</span>
+            <span class="n">distinct_species</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sps</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    
+    <span class="n">species_map</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">old_species</span><span class="p">,</span> <span class="n">new_species</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">distinct_species</span><span class="p">,</span> \
+                                   <span class="p">[</span><span class="s2">&quot;-&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sps</span><span class="p">)</span> <span class="k">for</span> <span class="n">sps</span> <span class="ow">in</span> <span class="n">distinct_species</span><span class="p">]):</span>
+        <span class="k">for</span> <span class="n">osp</span> <span class="ow">in</span> <span class="n">old_species</span><span class="p">:</span>
+            <span class="n">species_map</span><span class="p">[</span><span class="n">osp</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_species</span>
+
+    <span class="nb">print</span> <span class="n">species_map</span>
+    <span class="c1"># Update all species names</span>
+    <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">domains</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">what</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;species&quot;</span><span class="p">,</span> <span class="s2">&quot;buffers&quot;</span><span class="p">,</span> <span class="s2">&quot;diffusive&quot;</span><span class="p">]:</span>
+            <span class="n">new_species</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">os</span><span class="p">,</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">domains</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="n">what</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">os</span> <span class="ow">in</span> <span class="n">species_map</span><span class="p">:</span>
+                    <span class="n">new_species</span><span class="p">[</span><span class="n">species_map</span><span class="p">[</span><span class="n">os</span><span class="p">]]</span> <span class="o">=</span> <span class="n">ds</span>
+                    <span class="n">ds</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">species_map</span><span class="p">[</span><span class="n">os</span><span class="p">]</span>
+                        
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">new_species</span><span class="p">[</span><span class="n">ds</span><span class="o">.</span><span class="n">species</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span>
+
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">BufferReaction</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ds</span><span class="o">.</span><span class="n">bound_species</span> <span class="ow">in</span> <span class="n">species_map</span><span class="p">:</span>
+                    <span class="n">ds</span><span class="o">.</span><span class="n">bound_species</span> <span class="o">=</span> <span class="n">species_map</span><span class="p">[</span><span class="n">ds</span><span class="o">.</span><span class="n">bound_species</span><span class="p">]</span>
+            
+            <span class="n">domains</span><span class="p">[</span><span class="n">domain</span><span class="p">][</span><span class="n">what</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_species</span>
+
+    <span class="n">updated_species</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">sp</span><span class="p">,</span> <span class="n">sp_domains</span> <span class="ow">in</span> <span class="n">species</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">species_map</span><span class="p">:</span>
+            <span class="n">new_sp</span> <span class="o">=</span> <span class="n">species_map</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">new_sp</span> <span class="ow">in</span> <span class="n">updated_species</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">sp_domains</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">domain</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">updated_species</span><span class="p">[</span><span class="n">new_sp</span><span class="p">]:</span>
+                        <span class="n">updated_species</span><span class="p">[</span><span class="n">new_sp</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">domain</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">updated_species</span><span class="p">[</span><span class="n">new_sp</span><span class="p">]</span> <span class="o">=</span> <span class="n">species</span><span class="p">[</span><span class="n">sp</span><span class="p">][:]</span>
+            <span class="k">if</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">diffusive_species</span><span class="p">:</span>
+                <span class="n">diffusive_species</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span>
+                <span class="n">diffusive_species</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_sp</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">updated_species</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="o">=</span> <span class="n">sp_domains</span><span class="p">[:]</span></div>
+
+    <span class="c1"># # # FIXME: Not safe sorting as it does not take a look into all domains...</span>
+    <span class="c1"># def species_cmp(a, b):</span>
+    <span class="c1">#     if a not in diffusive_species and b not in diffusive_species:</span>
+    <span class="c1">#         return 0</span>
+    <span class="c1">#     elif a in diffusive_species and b in diffusive_species:</span>
+    <span class="c1">#         return 0</span>
+    <span class="c1">#     elif a in diffusive_species:</span>
+    <span class="c1">#         return -1</span>
+    <span class="c1">#     else:</span>
+    <span class="c1">#         return 1</span>
+
+    <span class="c1"># def domain_cmp(a, b):</span>
+    <span class="c1">#     if a not in domains and b not in domains:</span>
+    <span class="c1">#         return 0</span>
+    <span class="c1">#     elif a in domains and b in domains:</span>
+    <span class="c1">#         return cmp(domains.keys().index(a), domains.keys().index(b))</span>
+    <span class="c1">#     elif a in domains:</span>
+    <span class="c1">#         return -1</span>
+    <span class="c1">#     else:</span>
+    <span class="c1">#         return 1</span>
+
+    <span class="c1"># species = updated_species</span>
+    <span class="c1"># species_list = sorted(species.keys(), cmp=species_cmp)</span>
+    <span class="c1"># domain_list = sorted(all_domains, cmp=domain_cmp)</span>
+
+    <span class="c1"># print &quot;New species:&quot;, species_list</span>
+    <span class="c1"># print &quot;Check that these make sense as we have a faulty selection algorithm.&quot;</span>
+
+    <span class="c1"># # Open parameter h5 file</span>
+    <span class="c1"># with parameter_file(filename) as f:</span>
+    <span class="c1">#     # Extract Boundary fluxes</span>
+    <span class="c1">#     use_ryr = False</span>
+    <span class="c1">#     use_serca = False</span>
+    <span class="c1">#     for flux in boundary_fluxes:</span>
+    <span class="c1">#         if isinstance(flux, RyR):</span>
+    <span class="c1">#             ryr = flux</span>
+    <span class="c1">#             use_ryr = True</span>
+    <span class="c1">#         elif isinstance(flux, SERCA):</span>
+    <span class="c1">#             serca = flux</span>
+    <span class="c1">#             use_serca = True</span>
+            
+    <span class="c1">#     f.attrs.create(&quot;use_ryr&quot;, use_ryr, dtype=domain_id)</span>
+    <span class="c1">#     f.attrs.create(&quot;use_serca&quot;, use_serca, dtype=domain_id)</span>
+
+    <span class="c1">#     if use_ryr:</span>
+    <span class="c1">#         g_ryr = f.create_group(&quot;ryr&quot;)</span>
+    <span class="c1">#         g_ryr.attrs.create(&quot;Kd_open&quot;, ryr.Kd_open, dtype=float_type)</span>
+    <span class="c1">#         g_ryr.attrs.create(&quot;k_min_open&quot;, ryr.k_min_open, dtype=float_type)</span>
+    <span class="c1">#         g_ryr.attrs.create(&quot;k_max_open&quot;, ryr.k_max_open, dtype=float_type)</span>
+    <span class="c1">#         g_ryr.attrs.create(&quot;n_open&quot;, ryr.n_open, dtype=float_type)</span>
+
+    <span class="c1">#         g_ryr.attrs.create(&quot;Kd_close&quot;, ryr.Kd_close, dtype=float_type)</span>
+    <span class="c1">#         g_ryr.attrs.create(&quot;k_min_close&quot;, ryr.k_min_close, dtype=float_type)</span>
+    <span class="c1">#         g_ryr.attrs.create(&quot;k_max_close&quot;, ryr.k_max_close, dtype=float_type)</span>
+    <span class="c1">#         g_ryr.attrs.create(&quot;n_close&quot;, ryr.n_close, dtype=float_type)</span>
+
+    <span class="c1">#         g_ryr.attrs.create(&quot;i_unitary&quot;, ryr.i_unitary, dtype=float_type)</span>
+    <span class="c1">#         g_ryr.attrs.create(&quot;boundary&quot;, ryr.boundary)</span>
+    <span class="c1">#         g_ryr.attrs.create(&quot;species&quot;, ryr.species)</span>
+
+    <span class="c1">#     if use_serca:</span>
+    <span class="c1">#         g_serca = f.create_group(&quot;serca&quot;)</span>
+    <span class="c1">#         g_serca.attrs.create(&quot;v_cyt_to_A_sr&quot;, serca.v_cyt_to_A_sr,</span>
+    <span class="c1">#                              dtype=float_type)</span>
+    <span class="c1">#         g_serca.attrs.create(&quot;density&quot;, serca.density, dtype=float_type)</span>
+    <span class="c1">#         g_serca.attrs.create(&quot;scale&quot;, serca.scale, dtype=float_type)</span>
+    <span class="c1">#         g_serca.attrs.create(&quot;v_cyt_to_A_sr&quot;, serca.v_cyt_to_A_sr, dtype=float_type)</span>
+    <span class="c1">#         g_serca.attrs.create(&quot;boundary&quot;, serca.boundary)</span>
+    <span class="c1">#         g_serca.attrs.create(&quot;species&quot;, serca.species)</span>
+
+    <span class="c1">#     # Add domains</span>
+    <span class="c1">#     f.attrs.create(&quot;num_domains&quot;, len(domain_list), dtype=domain_id) # cyt, jsr, tt</span>
+    <span class="c1">#     for num, dn in enumerate(domain_list):</span>
+    <span class="c1">#         f.attrs.create(&quot;domain_name_{}&quot;.format(num), dn)</span>
+
+    <span class="c1">#     # Add species</span>
+    <span class="c1">#     f.attrs.create(&quot;num_species&quot;, len(species_list), dtype=domain_id)</span>
+    <span class="c1">#     for inds, sp in enumerate(species_list):</span>
+    <span class="c1">#         f.attrs.create(&quot;species_name_{}&quot;.format(inds), sp)</span>
+
+    <span class="c1">#     # Iterate over the domains and add species and buffer information</span>
+    <span class="c1">#     fixed = []</span>
+    <span class="c1">#     for indd, dom in enumerate(domain_list):</span>
+    <span class="c1">#         g = f.create_group(dom)</span>
+    <span class="c1">#         num_diffusive = 0</span>
+    <span class="c1">#         diffusive = []</span>
+    <span class="c1">#         sigmas = []</span>
+    <span class="c1">#         inits = []</span>
+    <span class="c1">#         for inds, sp in enumerate(species_list):</span>
+                
+    <span class="c1">#             if dom in domains and sp in domains[dom][&quot;species&quot;]:</span>
+    <span class="c1">#                 sigma = domains[dom][&quot;species&quot;][sp].sigma</span>
+    <span class="c1">#                 init = domains[dom][&quot;species&quot;][sp].init</span>
+    <span class="c1">#                 if domains[dom][&quot;species&quot;][sp].fixed:</span>
+    <span class="c1">#                     fixed.extend([indd, inds])</span>
+    <span class="c1">#             else:</span>
+    <span class="c1">#                 sigma = 0.0</span>
+    <span class="c1">#                 init = 0.0</span>
+
+    <span class="c1">#             inits.append(init)</span>
+    <span class="c1">#             if sigma &gt; 0:</span>
+    <span class="c1">#                 num_diffusive += 1</span>
+    <span class="c1">#                 diffusive.append(inds)</span>
+    <span class="c1">#                 sigmas.append(sigma)</span>
+                
+    <span class="c1">#         if dom in domains:</span>
+    <span class="c1">#             num_buff = len(domains[dom][&quot;buffers&quot;])</span>
+    <span class="c1">#             for indb, buff in enumerate(sorted(domains[dom][&quot;buffers&quot;].values(),</span>
+    <span class="c1">#                                                cmp=lambda a,b:cmp(</span>
+    <span class="c1">#                                                    species_list.index(a.species),</span>
+    <span class="c1">#                                                    species_list.index(b.species)))):</span>
+    <span class="c1">#                 bg = g.create_group(&quot;buffer_{}&quot;.format(indb))</span>
+    <span class="c1">#                 buff_sp = [species_list.index(buff.species), \</span>
+    <span class="c1">#                            species_list.index(buff.bound_species)]</span>
+    <span class="c1">#                 bg.attrs.create(&quot;species&quot;, np.array(buff_sp, dtype=domain_id))</span>
+    <span class="c1">#                 bg.attrs.create(&quot;k_off&quot;, buff.k_off, dtype=float_type)</span>
+    <span class="c1">#                 bg.attrs.create(&quot;k_on&quot;, buff.k_on, dtype=float_type)</span>
+    <span class="c1">#                 bg.attrs.create(&quot;tot&quot;, buff.tot, dtype=float_type)</span>
+    <span class="c1">#         else:</span>
+    <span class="c1">#             num_buff = 0</span>
+            
+    <span class="c1">#         g.attrs.create(&quot;num_buffers&quot;, num_buff, dtype=domain_id)</span>
+    <span class="c1">#         g.attrs.create(&quot;num_diffusive&quot;, num_diffusive, dtype=domain_id)</span>
+    <span class="c1">#         g.attrs.create(&quot;diffusive&quot;, np.array(diffusive, dtype=domain_id))</span>
+    <span class="c1">#         g.attrs.create(&quot;sigma&quot;, np.array(sigmas, dtype=float_type))</span>
+    <span class="c1">#         g.attrs.create(&quot;init&quot;, np.array(inits, dtype=float_type))</span>
+
+    <span class="c1">#     f.attrs.create(&quot;num_fixed_domain_species&quot;, len(fixed)/2, dtype=domain_id)</span>
+    <span class="c1">#     f.attrs.create(&quot;fixed_domain_species&quot;, np.array(fixed, dtype=domain_id))</span>
+
+    <span class="c1">#     # Save convolution constants in nm</span>
+    <span class="c1">#     s_x = 20000/np.log(2); s_y = s_x; s_z = 80000/np.log(2)</span>
+    <span class="c1">#     #s_x = 5000/np.log(2); s_y = s_x; s_z = 5000/np.log(2)</span>
+    <span class="c1">#     #s_x = 12/np.log(2); s_y = s_x; s_z = 12/np.log(2)</span>
+    <span class="c1">#     f.attrs.create(&quot;convolution_constants&quot;, np.array([s_x, s_y, s_z], dtype=float_type))</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="n">domain_species</span> <span class="o">=</span> <span class="p">[</span><span class="n">DomainSpecies</span><span class="p">(</span><span class="s2">&quot;cyt&quot;</span><span class="p">,</span> <span class="s2">&quot;Ca&quot;</span><span class="p">,</span> <span class="mf">0.14</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">220.e3</span><span class="p">),</span>
+                      <span class="n">DomainSpecies</span><span class="p">(</span><span class="s2">&quot;cyt&quot;</span><span class="p">,</span> <span class="s2">&quot;Fluo3&quot;</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">42.e3</span><span class="p">),</span>
+                      <span class="n">DomainSpecies</span><span class="p">(</span><span class="s2">&quot;cyt&quot;</span><span class="p">,</span> <span class="s2">&quot;CMDN&quot;</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">22.e3</span><span class="p">),</span>
+                      <span class="n">DomainSpecies</span><span class="p">(</span><span class="s2">&quot;cyt&quot;</span><span class="p">,</span> <span class="s2">&quot;ATP&quot;</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">140.e3</span><span class="p">),</span>
+                      <span class="n">DomainSpecies</span><span class="p">(</span><span class="s2">&quot;cyt&quot;</span><span class="p">,</span> <span class="s2">&quot;TRPN&quot;</span><span class="p">),</span>
+                      <span class="n">DomainSpecies</span><span class="p">(</span><span class="s2">&quot;cleft&quot;</span><span class="p">,</span> <span class="s2">&quot;Ca&quot;</span><span class="p">,</span> <span class="mf">0.14</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">220.e3</span><span class="o">*</span><span class="n">f</span><span class="p">),</span>
+                      <span class="n">DomainSpecies</span><span class="p">(</span><span class="s2">&quot;cleft&quot;</span><span class="p">,</span> <span class="s2">&quot;Fluo3&quot;</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">42.e3</span><span class="o">*</span><span class="n">f</span><span class="p">),</span>
+                      <span class="n">DomainSpecies</span><span class="p">(</span><span class="s2">&quot;cleft&quot;</span><span class="p">,</span> <span class="s2">&quot;CMDN&quot;</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">22.e3</span><span class="o">*</span><span class="n">f</span><span class="p">),</span>
+                      <span class="n">DomainSpecies</span><span class="p">(</span><span class="s2">&quot;cleft&quot;</span><span class="p">,</span> <span class="s2">&quot;ATP&quot;</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">140.e3</span><span class="o">*</span><span class="n">f</span><span class="p">),</span>
+                      <span class="n">DomainSpecies</span><span class="p">(</span><span class="s2">&quot;cleft&quot;</span><span class="p">,</span> <span class="s2">&quot;TRPN&quot;</span><span class="p">),</span>
+
+                      <span class="n">DomainSpecies</span><span class="p">(</span><span class="s2">&quot;jsr&quot;</span><span class="p">,</span> <span class="s2">&quot;Ca&quot;</span><span class="p">,</span> <span class="mf">1300.</span><span class="p">,</span> <span class="mf">73.3e3</span><span class="p">),</span>
+                      <span class="n">DomainSpecies</span><span class="p">(</span><span class="s2">&quot;jsr&quot;</span><span class="p">,</span> <span class="s2">&quot;Fluo5&quot;</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">8.e3</span><span class="p">),</span>
+                      <span class="n">DomainSpecies</span><span class="p">(</span><span class="s2">&quot;jsr&quot;</span><span class="p">,</span> <span class="s2">&quot;CSQN&quot;</span><span class="p">),</span>
+
+                      <span class="n">DomainSpecies</span><span class="p">(</span><span class="s2">&quot;nsr&quot;</span><span class="p">,</span> <span class="s2">&quot;Ca&quot;</span><span class="p">,</span> <span class="mf">1300.</span><span class="p">,</span> <span class="mf">0.01</span><span class="o">*</span><span class="mf">73.3e3</span><span class="p">),</span>
+                      <span class="n">DomainSpecies</span><span class="p">(</span><span class="s2">&quot;nsr&quot;</span><span class="p">,</span> <span class="s2">&quot;Fluo5&quot;</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">8.e3</span><span class="p">),</span>
+                      <span class="n">DomainSpecies</span><span class="p">(</span><span class="s2">&quot;nsr&quot;</span><span class="p">,</span> <span class="s2">&quot;CSQN&quot;</span><span class="p">),</span>
+                      <span class="p">]</span>
+
+    <span class="n">buffers</span> <span class="o">=</span> <span class="p">[</span><span class="n">BufferReaction</span><span class="p">(</span><span class="s2">&quot;cyt&quot;</span><span class="p">,</span> <span class="s2">&quot;CMDN&quot;</span><span class="p">,</span> <span class="s2">&quot;Ca&quot;</span><span class="p">,</span> <span class="mf">24.</span><span class="p">,</span> <span class="mi">34</span><span class="n">e</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mf">238.e-3</span><span class="p">),</span>
+               <span class="n">BufferReaction</span><span class="p">(</span><span class="s2">&quot;cyt&quot;</span><span class="p">,</span> <span class="s2">&quot;ATP&quot;</span><span class="p">,</span> <span class="s2">&quot;Ca&quot;</span><span class="p">,</span> <span class="mf">455.</span><span class="p">,</span> <span class="mi">255</span><span class="n">e</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mf">45.</span><span class="p">),</span>
+               <span class="n">BufferReaction</span><span class="p">(</span><span class="s2">&quot;cyt&quot;</span><span class="p">,</span> <span class="s2">&quot;Fluo3&quot;</span><span class="p">,</span> <span class="s2">&quot;Ca&quot;</span><span class="p">,</span> <span class="mf">25.</span><span class="p">,</span> <span class="mi">10</span><span class="o">*</span><span class="mi">110</span><span class="n">e</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">10</span><span class="o">*</span><span class="mi">110</span><span class="n">e</span><span class="o">-</span><span class="mi">3</span><span class="p">),</span>
+               <span class="n">BufferReaction</span><span class="p">(</span><span class="s2">&quot;cyt&quot;</span><span class="p">,</span> <span class="s2">&quot;TRPN&quot;</span><span class="p">,</span> <span class="s2">&quot;Ca&quot;</span><span class="p">,</span> <span class="mf">70.</span><span class="p">,</span> <span class="mf">32.7e-3</span><span class="p">,</span> <span class="mf">19.6e-3</span><span class="p">),</span>
+               
+               <span class="n">BufferReaction</span><span class="p">(</span><span class="s2">&quot;cleft&quot;</span><span class="p">,</span> <span class="s2">&quot;CMDN&quot;</span><span class="p">,</span> <span class="s2">&quot;Ca&quot;</span><span class="p">,</span> <span class="mf">24.</span><span class="p">,</span> <span class="mi">34</span><span class="n">e</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mf">238.e-3</span><span class="p">),</span>
+               <span class="n">BufferReaction</span><span class="p">(</span><span class="s2">&quot;cleft&quot;</span><span class="p">,</span> <span class="s2">&quot;ATP&quot;</span><span class="p">,</span> <span class="s2">&quot;Ca&quot;</span><span class="p">,</span> <span class="mf">455.</span><span class="p">,</span> <span class="mi">255</span><span class="n">e</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mf">45.</span><span class="p">),</span>
+               <span class="n">BufferReaction</span><span class="p">(</span><span class="s2">&quot;cleft&quot;</span><span class="p">,</span> <span class="s2">&quot;Fluo3&quot;</span><span class="p">,</span> <span class="s2">&quot;Ca&quot;</span><span class="p">,</span> <span class="mf">25.</span><span class="p">,</span><span class="mi">10</span><span class="o">*</span><span class="mi">110</span><span class="n">e</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">10</span><span class="o">*</span><span class="mi">110</span><span class="n">e</span><span class="o">-</span><span class="mi">3</span><span class="p">),</span>
+               <span class="n">BufferReaction</span><span class="p">(</span><span class="s2">&quot;cleft&quot;</span><span class="p">,</span> <span class="s2">&quot;TRPN&quot;</span><span class="p">,</span> <span class="s2">&quot;Ca&quot;</span><span class="p">,</span> <span class="mf">47.</span><span class="p">,</span> <span class="mf">32.7e-3</span><span class="p">,</span> <span class="mf">19.6e-3</span><span class="p">),</span>
+
+               <span class="c1">#BufferReaction(&quot;jsr&quot;, &quot;Fluo5&quot;, &quot;Ca&quot;, 25., 250e-6, 100e-3),</span>
+               <span class="n">BufferReaction</span><span class="p">(</span><span class="s2">&quot;jsr&quot;</span><span class="p">,</span> <span class="s2">&quot;Fluo5&quot;</span><span class="p">,</span> <span class="s2">&quot;Ca&quot;</span><span class="p">,</span> <span class="mf">25.e-3</span><span class="p">,</span> <span class="mi">110</span><span class="n">e</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">110</span><span class="n">e</span><span class="o">-</span><span class="mi">3</span><span class="p">),</span>
+               <span class="n">BufferReaction</span><span class="p">(</span><span class="s2">&quot;jsr&quot;</span><span class="p">,</span> <span class="s2">&quot;CSQN&quot;</span><span class="p">,</span> <span class="s2">&quot;Ca&quot;</span><span class="p">,</span> <span class="mf">30.e3</span><span class="p">,</span> <span class="mi">102</span><span class="n">e</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mf">65.</span><span class="p">),</span>
+               
+               <span class="c1">#BufferReaction(&quot;nsr&quot;, &quot;Fluo5&quot;, &quot;Ca&quot;,25., 250e-6, 100e-3),</span>
+               <span class="n">BufferReaction</span><span class="p">(</span><span class="s2">&quot;nsr&quot;</span><span class="p">,</span> <span class="s2">&quot;Fluo5&quot;</span><span class="p">,</span> <span class="s2">&quot;Ca&quot;</span><span class="p">,</span> <span class="mf">25.e-3</span><span class="p">,</span> <span class="mi">110</span><span class="n">e</span><span class="o">-</span><span class="mi">6</span><span class="p">,</span> <span class="mi">110</span><span class="n">e</span><span class="o">-</span><span class="mi">3</span><span class="p">),</span>
+               <span class="n">BufferReaction</span><span class="p">(</span><span class="s2">&quot;nsr&quot;</span><span class="p">,</span> <span class="s2">&quot;CSQN&quot;</span><span class="p">,</span> <span class="s2">&quot;Ca&quot;</span><span class="p">,</span> <span class="mf">6.e3</span><span class="p">,</span> <span class="mi">102</span><span class="n">e</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mf">65.</span><span class="p">)</span>
+               <span class="p">]</span>
+
+    <span class="n">domains</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;cyt&quot;</span><span class="p">,</span> <span class="s2">&quot;cleft&quot;</span><span class="p">,</span> <span class="s2">&quot;jsr&quot;</span><span class="p">,</span> <span class="s2">&quot;nsr&quot;</span><span class="p">,</span> <span class="s2">&quot;tt&quot;</span><span class="p">]</span>
+
+    <span class="n">double</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">float_type</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span> <span class="k">else</span> <span class="s2">&quot;_double&quot;</span>
+    <span class="n">suffix</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="c1">#ryr = RyR(Kd_open=80., Kd_close=50.)</span>
+    <span class="c1">#ryr = RyR(Kd_open=105., Kd_close=62.5, k_min_open=1.e-4*0.05, i_unitary= 0.5)</span>
+
+    <span class="n">ryr</span> <span class="o">=</span> <span class="n">RyR</span><span class="p">(</span><span class="n">Kd_open</span><span class="o">=</span><span class="mf">105.</span><span class="p">,</span> <span class="n">Kd_close</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">k_min_open</span><span class="o">=</span><span class="mf">1.e-4</span><span class="o">*</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">i_unitary</span><span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span> <span class="c1"># Kd_open = 60: shifted</span>
+    <span class="c1">#ryr = RyR(Kd_open=105., Kd_close=30.0, k_min_open=1.e-4*0.05, i_unitary= 0.5)</span>
+    <span class="c1">#ryr = RyR(Kd_open=90., Kd_close=62.5)</span>
+    
+    <span class="n">serca</span> <span class="o">=</span> <span class="n">SERCA</span><span class="p">(</span><span class="n">density</span><span class="o">=</span><span class="mf">1000.</span><span class="p">)</span> <span class="c1">#this pumps at 20uM/10ms, 700um/350ms, perhaps</span>
+    
+    <span class="c1">#write_species_params(&quot;parameters_flat_1{}{}.h5&quot;.format(double, suffix),</span>
+    <span class="c1">#                     domains, domain_species, buffers, [ryr, serca])</span>
+
+    <span class="c1">#write_species_params(&quot;parameters_kdo_{}_kdc_{}_i_{}{}{}.h5&quot;.format(        int(ryr.Kd_open), int(ryr.Kd_close), float(ryr.i_unitary), double, suffix),                         domains, domain_species, buffers, [ryr, serca])</span>
+    
+    <span class="n">write_species_params</span><span class="p">(</span><span class="s2">&quot;parameters.h5&quot;</span><span class="p">,</span> <span class="n">domains</span><span class="p">,</span> <span class="n">domain_species</span><span class="p">,</span> <span class="n">buffers</span><span class="p">,</span> <span class="p">[</span><span class="n">ryr</span><span class="p">,</span> <span class="n">serca</span><span class="p">])</span>
+    
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Jonas van den Brink.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

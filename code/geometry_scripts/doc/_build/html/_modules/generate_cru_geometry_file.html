@@ -1,0 +1,528 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>generate_cru_geometry_file &mdash; hpc-ca geometry utils 0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="hpc-ca geometry utils 0.1 documentation" href="../index.html"/>
+        <link rel="up" title="Module code" href="index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> hpc-ca geometry utils
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../generate_cru_geometry_file.html">generate_cru_geometry_file module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generate_parameters.html">generate_parameters module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../geometry_util.html">geometry_util module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../growth.html">growth module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../h5files.html">h5files module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../visualize_geometry.html">visualize_geometry module</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">hpc-ca geometry utils</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>generate_cru_geometry_file</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for generate_cru_geometry_file</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span> 
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
+
+<span class="kn">import</span> <span class="nn">geometry_util</span> <span class="k">as</span> <span class="nn">gu</span>
+<span class="kn">from</span> <span class="nn">h5files</span> <span class="k">import</span> <span class="n">GeometryFile</span>
+
+<div class="viewcode-block" id="ppm_to_arrays"><a class="viewcode-back" href="../generate_cru_geometry_file.html#generate_cru_geometry_file.ppm_to_arrays">[docs]</a><span class="k">def</span> <span class="nf">ppm_to_arrays</span><span class="p">(</span><span class="n">infile</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">jsr_layers</span><span class="p">,</span> <span class="n">subdivide</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">nsr_width</span><span class="o">=</span><span class="mf">3.0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a ppm and create boolean arrays for ryr, jsr and nsr.</span>
+
+<span class="sd">    A .ppm is read, assuming a resolution of 36 nm. From these </span>
+<span class="sd">    RyR locations, the jSR is created by selecting the area surrounding RyR.</span>
+<span class="sd">    The RyR and jSR arrays are then refined to a finer grid. Finally the nSR</span>
+<span class="sd">    column locations are selected by surrounding the refined RyR locations</span>
+
+<span class="sd">    :param str infile: name of .ppm file (with or without extension)</span>
+<span class="sd">    :param int width: number of voxels in each direction [36 nm]</span>
+<span class="sd">    :param int subdivide: number of subpixels to split each pixel into</span>
+<span class="sd">    :param int jsr_layers: nr of layers of jSR around RyR</span>
+<span class="sd">    :param nsr_width: size of nSR columns around RyR</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Read RyR data and center it to correct size</span>
+    <span class="n">indata</span> <span class="o">=</span> <span class="n">gu</span><span class="o">.</span><span class="n">read_ppm</span><span class="p">(</span><span class="n">infile</span><span class="p">)</span>
+    <span class="n">bbox</span> <span class="o">=</span> <span class="n">gu</span><span class="o">.</span><span class="n">trim_to_bbox</span><span class="p">(</span><span class="n">indata</span><span class="p">)</span>
+    <span class="n">ryr</span> <span class="o">=</span> <span class="n">gu</span><span class="o">.</span><span class="n">pad_array</span><span class="p">(</span><span class="n">bbox</span><span class="p">,</span> <span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">width</span><span class="p">))</span>
+
+    <span class="c1"># Create jSR</span>
+    <span class="n">jsr</span> <span class="o">=</span> <span class="n">gu</span><span class="o">.</span><span class="n">create_jsr</span><span class="p">(</span><span class="n">ryr</span><span class="p">,</span> <span class="n">jsr_layers</span><span class="p">)</span>
+
+    <span class="c1"># Refine RyR and jSR</span>
+    <span class="n">ryr</span> <span class="o">=</span> <span class="n">gu</span><span class="o">.</span><span class="n">refine_ryr</span><span class="p">(</span><span class="n">ryr</span><span class="p">,</span> <span class="n">subdivide</span><span class="p">)</span>
+    <span class="n">jsr</span> <span class="o">=</span> <span class="n">gu</span><span class="o">.</span><span class="n">refine_jsr</span><span class="p">(</span><span class="n">jsr</span><span class="p">,</span> <span class="n">subdivide</span><span class="p">,</span> <span class="n">remove_edges</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Find nSR column locations</span>
+    <span class="n">nsr</span> <span class="o">=</span> <span class="n">gu</span><span class="o">.</span><span class="n">create_nsr</span><span class="p">(</span><span class="n">ryr</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ryr</span><span class="p">,</span> <span class="n">jsr</span><span class="p">,</span> <span class="n">nsr</span></div>
+
+
+<div class="viewcode-block" id="generate_cru_geometry_file"><a class="viewcode-back" href="../generate_cru_geometry_file.html#generate_cru_geometry_file.generate_cru_geometry_file">[docs]</a><span class="k">def</span> <span class="nf">generate_cru_geometry_file</span><span class="p">(</span><span class="n">ryr</span><span class="p">,</span> <span class="n">jsr</span><span class="p">,</span> <span class="n">nsr</span><span class="p">,</span> <span class="n">tt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nz</span><span class="o">=</span><span class="mi">168</span><span class="p">,</span> 
+                               <span class="n">nsr_height</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nsr_volume</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nsr_ratio</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  
+                               <span class="n">cleft_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">jsr_thickness</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                               <span class="n">double</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">basename</span><span class="o">=</span><span class="s2">&quot;sarcomere_geometry&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generate a 3D voxel geometry from 2D arrays.</span>
+
+<span class="sd">    Take RyR, jSR and nSR positions as 2D boolean arrays and produce</span>
+<span class="sd">    a 3D voxel geometry that is saved to a h5 file. Each voxel is</span>
+<span class="sd">    12x12x12 microns, and the 2D arrays are expected to have the same </span>
+<span class="sd">    resolution. </span>
+
+<span class="sd">    The height of the nSR columns can be given either as the height, in number </span>
+<span class="sd">    of voxels, or as the volume of the nSR, either in absolute value, or as</span>
+<span class="sd">    a ratio of total volume</span>
+
+<span class="sd">    :param ryr: (m, n) boolean array</span>
+<span class="sd">    :type ryr: </span>
+<span class="sd">    :param jsr: (m, n) boolean array </span>
+<span class="sd">    :param nsr: (m, n) boolean array </span>
+<span class="sd">    :param nz: int, number of voxels in z-direction [12 nm]</span>
+<span class="sd">    :param nsr_height: height of nsr in voxels, assumes height is max if None</span>
+<span class="sd">    :param nsr_volume: volume of nsr in voxels</span>
+<span class="sd">    :param nsr_ratio: ratio of nsr to total volume</span>
+<span class="sd">    :param cleft_size: int, width of cleft in voxels</span>
+<span class="sd">    :param jsr_thickness: int, jSR thickness in z-iredction in voxels</span>
+<span class="sd">    :param double: boolean, save to h5 with double float precision</span>
+<span class="sd">    :param basename: name of h5 file to save to </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">all</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="p">(</span><span class="n">ryr</span><span class="p">,</span> <span class="n">jsr</span><span class="p">,</span> <span class="n">nsr</span><span class="p">)),</span> <span class="s2">&quot;expected &quot;</span>\
+                                                                    <span class="s2">&quot;2D arrays&quot;</span>
+    <span class="k">assert</span> <span class="n">ryr</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">jsr</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">nsr</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="s2">&quot;2D arrays must be of same size&quot;</span>
+
+    <span class="n">double_str</span> <span class="o">=</span> <span class="s2">&quot;_double&quot;</span> <span class="k">if</span> <span class="n">double</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">outfile</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}{}</span><span class="s2">.h5&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">basename</span><span class="p">,</span> <span class="n">double_str</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Creating CRU geometry file </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">outfile</span><span class="p">))</span>
+
+    <span class="c1"># Geometry, length unit: nm</span>
+    <span class="n">nr_of_ryrs</span> <span class="o">=</span> <span class="n">ryr</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="mi">12</span>
+    <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span> <span class="o">=</span> <span class="n">ryr</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">domain_size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">nx</span><span class="o">*</span><span class="n">h</span><span class="p">,</span> <span class="n">ny</span><span class="o">*</span><span class="n">h</span><span class="p">,</span> <span class="n">nz</span><span class="o">*</span><span class="n">h</span><span class="p">))</span>
+    
+    <span class="c1"># Voxel labels</span>
+    <span class="n">inds</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+    <span class="n">inds</span><span class="p">[</span><span class="s2">&quot;cyt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">inds</span><span class="p">[</span><span class="s2">&quot;cleft&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">inds</span><span class="p">[</span><span class="s2">&quot;jsr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">inds</span><span class="p">[</span><span class="s2">&quot;nsr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">inds</span><span class="p">[</span><span class="s2">&quot;tt&quot;</span><span class="p">]</span>  <span class="o">=</span> <span class="mi">4</span>
+
+    <span class="c1"># Create connections</span>
+    <span class="n">domain_connections</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;cyt&quot;</span><span class="p">,</span> <span class="s2">&quot;cleft&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;jsr&quot;</span><span class="p">,</span> <span class="s2">&quot;nsr&quot;</span><span class="p">)]</span>
+    <span class="n">connections</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">inds</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">inds</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">conn</span> <span class="ow">in</span> <span class="n">domain_connections</span><span class="p">:</span>
+        <span class="k">assert</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">conn</span><span class="p">))</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;a connection must be between 2 domains&quot;</span>
+        <span class="k">assert</span> <span class="n">conn</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">inds</span><span class="p">,</span> <span class="s2">&quot;domain </span><span class="si">%s</span><span class="s2"> not recognized&quot;</span> <span class="o">%</span> <span class="n">conn</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">conn</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">inds</span><span class="p">,</span> <span class="s2">&quot;domain </span><span class="si">%s</span><span class="s2"> not recognized&quot;</span> <span class="o">%</span> <span class="n">conn</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">connections</span><span class="p">[</span><span class="n">inds</span><span class="p">[</span><span class="n">conn</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">inds</span><span class="p">[</span><span class="n">conn</span><span class="p">[</span><span class="mi">1</span><span class="p">]]]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">connections</span><span class="p">[</span><span class="n">inds</span><span class="p">[</span><span class="n">conn</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">inds</span><span class="p">[</span><span class="n">conn</span><span class="p">[</span><span class="mi">0</span><span class="p">]]]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c1"># Create a geometric 3D array, start all voxels as cytosol</span>
+    <span class="n">geom_vox</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">),</span> 
+                         <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+    <span class="n">geom_vox</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">inds</span><span class="p">[</span><span class="s2">&quot;cyt&quot;</span><span class="p">])</span>
+
+    <span class="c1"># Find z indices</span>
+    <span class="n">center_z</span> <span class="o">=</span> <span class="n">nz</span><span class="o">/</span><span class="mi">2</span>
+    <span class="n">last_z_ind</span> <span class="o">=</span> <span class="n">nz</span>
+    
+    <span class="c1"># Fill in jSR and t-tubule voxels (assuming equal thickness of jSR and tt)</span>
+    <span class="c1"># Assume t-tubules is opposite jSR if no information is given</span>
+    <span class="n">tt</span> <span class="o">=</span> <span class="n">jsr</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="n">tt</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">tt</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">jsr_thickness</span><span class="p">):</span>
+        <span class="n">geom_vox</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">center_z</span> <span class="o">+</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">jsr</span><span class="o">*</span><span class="n">inds</span><span class="p">[</span><span class="s2">&quot;jsr&quot;</span><span class="p">]</span>
+        <span class="n">geom_vox</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">center_z</span> <span class="o">-</span> <span class="n">k</span> <span class="o">-</span> <span class="n">cleft_size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">tt</span><span class="o">*</span><span class="n">inds</span><span class="p">[</span><span class="s1">&#39;tt&#39;</span><span class="p">]</span>
+
+    <span class="c1"># Smooth the top layer of the jSR</span>
+    <span class="n">geom_vox</span><span class="p">[:,:,</span><span class="n">center_z</span><span class="o">+</span><span class="n">jsr_thickness</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">gu</span><span class="o">.</span><span class="n">shrink_sr</span><span class="p">(</span><span class="n">jsr</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">inds</span><span class="p">[</span><span class="s2">&quot;jsr&quot;</span><span class="p">]</span> 
+    <span class="c1"># Find the nSR roof</span>
+    <span class="n">roof_height</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">nsr</span><span class="p">)</span>
+    <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+    <span class="n">roof_volume</span> <span class="o">=</span> <span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">y1</span> <span class="o">-</span> <span class="n">y0</span><span class="p">)</span><span class="o">*</span><span class="n">roof_height</span>
+
+    <span class="c1"># Calculate height of nSR columns</span>
+    <span class="n">total_vol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">geom_vox</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">arg</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="p">(</span><span class="n">nsr_height</span><span class="p">,</span> <span class="n">nsr_volume</span><span class="p">,</span> <span class="n">nsr_ratio</span><span class="p">)):</span>
+        <span class="n">nsr_stop_ind</span> <span class="o">=</span> <span class="n">nz</span> <span class="o">-</span> <span class="n">roof_height</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">nsr_height</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">nsr_volume</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">nsr_volume</span> <span class="o">=</span> <span class="n">nsr_ratio</span> <span class="o">*</span> <span class="n">total_vol</span>
+        <span class="n">nsr_height</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="n">nsr_volume</span> <span class="o">-</span> <span class="n">roof_volume</span><span class="p">)</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">nsr</span><span class="p">))))</span>
+        <span class="k">if</span> <span class="n">nsr_height</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Specified nSR volume too small&quot;</span><span class="p">)</span>
+            <span class="n">nsr_height</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="n">nsr_stop_ind</span> <span class="o">=</span> <span class="n">center_z</span> <span class="o">+</span> <span class="n">jsr_thickness</span> <span class="o">+</span> <span class="n">nsr_height</span>
+
+    <span class="k">if</span> <span class="n">nsr_stop_ind</span> <span class="o">&gt;</span> <span class="n">nz</span> <span class="o">-</span> <span class="n">roof_height</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="n">nsr_stop_ind</span><span class="p">,</span> <span class="n">nz</span> <span class="o">-</span> <span class="n">roof_height</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Specified nSR volume does not fit inside geometry.&quot;</span><span class="p">)</span>
+        <span class="n">nsr_stop_ind</span> <span class="o">=</span> <span class="n">nz</span> <span class="o">-</span> <span class="n">roof_height</span>
+
+    <span class="c1"># Add columns</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">center_z</span> <span class="o">+</span> <span class="n">jsr_thickness</span><span class="p">,</span> <span class="n">nsr_stop_ind</span><span class="p">):</span>
+        <span class="n">geom_vox</span><span class="p">[:,:,</span><span class="n">m</span><span class="p">]</span> <span class="o">=</span> <span class="n">nsr</span><span class="o">*</span><span class="n">inds</span><span class="p">[</span><span class="s2">&quot;nsr&quot;</span><span class="p">]</span>
+        
+    <span class="c1"># Add roof</span>
+    <span class="n">geom_vox</span><span class="p">[</span><span class="n">x0</span><span class="p">:(</span><span class="n">x1</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">y0</span><span class="p">:(</span><span class="n">y1</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">m</span><span class="p">:</span><span class="n">m</span><span class="o">+</span><span class="n">roof_height</span><span class="p">]</span> <span class="o">=</span> <span class="n">inds</span><span class="p">[</span><span class="s2">&quot;nsr&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Print volume information</span>
+    <span class="n">jsr_vol</span> <span class="o">=</span> <span class="p">(</span><span class="n">geom_vox</span> <span class="o">==</span> <span class="n">inds</span><span class="p">[</span><span class="s2">&quot;jsr&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">nsr_vol</span> <span class="o">=</span> <span class="p">(</span><span class="n">geom_vox</span> <span class="o">==</span> <span class="n">inds</span><span class="p">[</span><span class="s2">&quot;nsr&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:s}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;Volume measurements (number of voxels)&quot;</span><span class="p">))</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:&gt;15s}</span><span class="s2">: </span><span class="si">{:&lt;10.0f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;Total volume&quot;</span><span class="p">,</span> <span class="n">total_vol</span><span class="p">))</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:&gt;15s}</span><span class="s2">: </span><span class="si">{:&lt;10.0f}</span><span class="s2"> (</span><span class="si">{:.2%}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;jsr volume&quot;</span><span class="p">,</span> <span class="n">jsr_vol</span><span class="p">,</span> 
+                                              <span class="mf">1.0</span><span class="o">*</span><span class="n">jsr_vol</span><span class="o">/</span><span class="n">total_vol</span><span class="p">))</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:&gt;15s}</span><span class="s2">: </span><span class="si">{:&lt;10.0f}</span><span class="s2"> (</span><span class="si">{:.2%}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;nsr volume&quot;</span><span class="p">,</span> <span class="n">nsr_vol</span><span class="p">,</span> 
+                                              <span class="mf">1.0</span><span class="o">*</span><span class="n">nsr_vol</span><span class="o">/</span><span class="n">total_vol</span><span class="p">))</span>
+
+    <span class="c1"># Fill in cleft voxels</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cleft_size</span><span class="p">):</span>
+        <span class="n">geom_vox</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">center_z</span><span class="o">-</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">jsr</span><span class="o">*</span><span class="n">inds</span><span class="p">[</span><span class="s2">&quot;cleft&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Construct 3D RyR indices</span>
+    <span class="n">ryr_x_ind</span><span class="p">,</span> <span class="n">ryr_y_ind</span> <span class="o">=</span> <span class="n">ryr</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()</span>
+    <span class="n">ryr_z_ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">nr_of_ryrs</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">)</span>
+    <span class="n">ryr_z_ind</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">center_z</span><span class="p">)</span>
+
+    <span class="n">ryrs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">ryr_x_ind</span><span class="p">,</span> <span class="n">ryr_y_ind</span><span class="p">,</span> <span class="n">ryr_z_ind</span><span class="p">,</span> \
+                                  <span class="n">ryr_x_ind</span><span class="p">,</span> <span class="n">ryr_y_ind</span><span class="p">,</span> <span class="n">ryr_z_ind</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+                                 <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">))</span>
+
+    <span class="c1"># Create LCCs (At the moment we only model sparks, so no LCCs)</span>
+    <span class="c1"># create_LCCs()</span>
+
+    <span class="c1"># SR indices</span>
+    <span class="n">jsr_indices</span> <span class="o">=</span> <span class="p">(</span><span class="n">geom_vox</span> <span class="o">==</span> <span class="n">inds</span><span class="p">[</span><span class="s2">&quot;jsr&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+    <span class="n">nsr_indices</span> <span class="o">=</span> <span class="p">(</span><span class="n">geom_vox</span> <span class="o">==</span> <span class="n">inds</span><span class="p">[</span><span class="s2">&quot;nsr&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+
+    <span class="c1"># Find SERCA faces in xy plane and upper z plane (skipping cleft faces)</span>
+    <span class="c1"># Find indices for x faces that recieve and send flux (cyt)</span>
+    <span class="c1"># FIXME: Switch order so that SERCA goes from cyt to SR</span>
+    <span class="n">jsr_diff_x</span> <span class="o">=</span> <span class="n">jsr_indices</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">jsr_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span>
+    <span class="n">nsr_diff_x</span> <span class="o">=</span> <span class="n">nsr_indices</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">nsr_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span>
+    <span class="c1"># Recieving in x</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="n">jsr_diff_x</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()</span>
+    <span class="n">x_sending_receive_0_jsr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">x</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)))</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="n">nsr_diff_x</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()</span>
+    <span class="n">x_sending_receive_0_nsr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">x</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)))</span>
+    <span class="c1"># Sending in x</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="n">jsr_diff_x</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()</span>
+    <span class="n">x_sending_receive_1_jsr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">x</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)))</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="n">nsr_diff_x</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()</span>
+    <span class="n">x_sending_receive_1_nsr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">x</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)))</span>
+
+    <span class="c1"># Find indices for y-faces</span>
+    <span class="n">jsr_diff_y</span> <span class="o">=</span> <span class="n">jsr_indices</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">,:]</span><span class="o">-</span><span class="n">jsr_indices</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:,:]</span>
+    <span class="n">nsr_diff_y</span> <span class="o">=</span> <span class="n">nsr_indices</span><span class="p">[:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">,:]</span><span class="o">-</span><span class="n">nsr_indices</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:,:]</span>
+    <span class="c1"># Recieving in y</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="n">jsr_diff_y</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()</span>
+    <span class="n">y_sending_receive_0_jsr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)))</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="n">nsr_diff_y</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()</span>
+    <span class="n">y_sending_receive_0_nsr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)))</span>
+    <span class="c1"># Sending in y</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="n">jsr_diff_y</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()</span>
+    <span class="n">y_sending_receive_1_jsr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">z</span><span class="p">)))</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="n">nsr_diff_y</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()</span>
+    <span class="n">y_sending_receive_1_nsr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">z</span><span class="p">)))</span>
+
+    <span class="c1"># Find indices for z-faces</span>
+    <span class="n">jsr_diff_z</span> <span class="o">=</span> <span class="n">jsr_indices</span><span class="p">[:,:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">jsr_indices</span><span class="p">[:,:,</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">nsr_diff_z</span> <span class="o">=</span> <span class="n">nsr_indices</span><span class="p">[:,:,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">nsr_indices</span><span class="p">[:,:,</span><span class="mi">1</span><span class="p">:]</span>
+    
+    <span class="c1"># Recieving in Z</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="n">jsr_diff_z</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()</span>
+    <span class="c1"># Create xy tuples</span>
+    <span class="n">xy_serca_inds</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+    <span class="n">include_inds</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">xy_serca_inds</span><span class="p">))</span>
+    <span class="c1"># Remove indices which coincides with the nsr xy indices</span>
+    <span class="k">for</span> <span class="n">xy_nsr_loc</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">nsr</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()):</span>
+        <span class="n">include_inds</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">xy_serca_inds</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">xy_nsr_loc</span><span class="p">))</span>
+    <span class="n">z_sending_receive_0_jsr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)))</span>
+    <span class="n">z_sending_receive_0_jsr</span> <span class="o">=</span> <span class="n">z_sending_receive_0_jsr</span><span class="p">[</span><span class="n">include_inds</span><span class="p">]</span>
+
+    <span class="c1"># Sending in Z</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="n">nsr_diff_z</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()</span>
+    <span class="n">z_sending_receive_1_nsr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span>
+    <span class="c1"># Split all xy indices into a list of xy tuples</span>
+    <span class="n">xy_serca_inds</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+    <span class="n">include_inds</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">xy_serca_inds</span><span class="p">))</span>
+    <span class="c1"># Remove indices which coincides with the nsr xy indices</span>
+    <span class="k">for</span> <span class="n">xy_nsr_loc</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">nsr</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()):</span>
+        <span class="n">include_inds</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">xy_serca_inds</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">xy_nsr_loc</span><span class="p">))</span>
+    <span class="n">z_sending_receive_1_nsr</span> <span class="o">=</span> <span class="n">z_sending_receive_1_nsr</span><span class="p">[</span><span class="n">include_inds</span><span class="p">]</span>
+
+    <span class="n">SERCA_faces</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">x_sending_receive_0_jsr</span><span class="p">,</span> <span class="n">x_sending_receive_1_jsr</span><span class="p">,</span> 
+                                  <span class="n">x_sending_receive_0_nsr</span><span class="p">,</span> <span class="n">x_sending_receive_1_nsr</span><span class="p">,</span> 
+                                  <span class="n">y_sending_receive_0_jsr</span><span class="p">,</span> <span class="n">y_sending_receive_1_jsr</span><span class="p">,</span> 
+                                  <span class="n">y_sending_receive_0_nsr</span><span class="p">,</span> <span class="n">y_sending_receive_1_nsr</span><span class="p">,</span> 
+                                  <span class="n">z_sending_receive_0_jsr</span><span class="p">,</span> <span class="n">z_sending_receive_1_nsr</span><span class="p">))</span>
+
+    <span class="c1"># Find SR-cyt face indices in the cleft</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="n">jsr_diff_z</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()</span>
+    <span class="n">z_cleft</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span>
+
+    <span class="c1"># Hande double flag</span>
+    <span class="n">float_type</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span> <span class="k">if</span> <span class="n">double</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span>
+
+    <span class="c1"># Save voxel and face data to a h5 file</span>
+    <span class="k">with</span> <span class="n">GeometryFile</span><span class="p">(</span><span class="n">outfile</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">float_type</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;global_size&quot;</span><span class="p">,</span> <span class="n">domain_size</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">float_type</span><span class="p">))</span>
+
+        <span class="n">g</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span><span class="s2">&quot;domains&quot;</span><span class="p">)</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;num&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">inds</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">inds</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">g</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;name_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ind</span><span class="p">),</span> <span class="n">name</span><span class="p">)</span>
+            
+        <span class="n">g</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;indices&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">inds</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">))</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s2">&quot;voxels&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">geom_vox</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+                         <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+
+        <span class="c1"># Add domain connections</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s2">&quot;domain_connections&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">connections</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+    
+        <span class="n">faces</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span><span class="s2">&quot;boundaries&quot;</span><span class="p">)</span>
+        <span class="n">faces</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;num&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+        <span class="n">faces</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;name_0&quot;</span><span class="p">,</span> <span class="s2">&quot;serca&quot;</span><span class="p">)</span>
+        <span class="n">faces</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;name_1&quot;</span><span class="p">,</span> <span class="s2">&quot;ryr&quot;</span><span class="p">)</span>
+        <span class="n">faces</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;name_2&quot;</span><span class="p">,</span> <span class="s2">&quot;sr_cleft&quot;</span><span class="p">)</span>
+
+        <span class="n">faces</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s2">&quot;serca&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">SERCA_faces</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+                             <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">)</span>
+        <span class="n">faces</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s2">&quot;sr_cleft&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">z_cleft</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+                             <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">)</span>
+        <span class="n">faces</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="s2">&quot;ryr&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">ryrs</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+                             <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">)</span>
+                             
+        <span class="n">faces</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;type_0&quot;</span><span class="p">,</span> <span class="s2">&quot;density&quot;</span><span class="p">)</span>
+        <span class="n">faces</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;type_1&quot;</span><span class="p">,</span> <span class="s2">&quot;discrete&quot;</span><span class="p">)</span>
+        <span class="n">faces</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;type_2&quot;</span><span class="p">,</span> <span class="s2">&quot;density&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ppm_to_geomfile"><a class="viewcode-back" href="../generate_cru_geometry_file.html#generate_cru_geometry_file.ppm_to_geomfile">[docs]</a><span class="k">def</span> <span class="nf">ppm_to_geomfile</span><span class="p">(</span><span class="n">infile</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">pad</span><span class="p">,</span> <span class="n">save2d_pdf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a ppm file and generate a 2x2x2 um geometry h5 file.&quot;&quot;&quot;</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="mi">56</span> <span class="c1"># ~2 um</span>
+    <span class="n">ryr</span><span class="p">,</span> <span class="n">jsr</span><span class="p">,</span> <span class="n">nsr</span> <span class="o">=</span> <span class="n">ppm_to_arrays</span><span class="p">(</span><span class="n">infile</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">pad</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">save2d_pdf</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">os</span>
+        <span class="n">gu</span><span class="o">.</span><span class="n">save_combined_2D_pdf</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">outfile</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ryr</span><span class="p">,</span> <span class="n">jsr</span><span class="p">,</span> <span class="n">nsr</span><span class="p">)</span>
+
+    <span class="n">generate_cru_geometry_file</span><span class="p">(</span><span class="n">ryr</span><span class="p">,</span> <span class="n">jsr</span><span class="p">,</span> <span class="n">nsr</span><span class="p">,</span> <span class="n">nz</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">N</span><span class="p">,</span> <span class="n">cleft_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> 
+                               <span class="n">jsr_thickness</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">double</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">basename</span><span class="o">=</span><span class="n">basename</span><span class="p">,</span>
+                               <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+    
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;1_solid&#39;</span><span class="p">,</span> <span class="s1">&#39;4_sub&#39;</span><span class="p">,</span><span class="s1">&#39;7_sub&#39;</span><span class="p">,</span><span class="s1">&#39;10_sub&#39;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">pad</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="n">basename</span> <span class="o">=</span> <span class="s2">&quot;geometries/P</span><span class="si">%d</span><span class="s2">_&quot;</span> <span class="o">%</span> <span class="n">pad</span> <span class="o">+</span> <span class="n">name</span>
+            <span class="n">ppm_to_geomfile</span><span class="p">(</span><span class="s2">&quot;img/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="n">pad</span><span class="p">,</span> <span class="n">save2d_pdf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                      <span class="n">nsr_ratio</span><span class="o">=</span><span class="mf">0.005</span><span class="p">)</span>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Jonas van den Brink.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

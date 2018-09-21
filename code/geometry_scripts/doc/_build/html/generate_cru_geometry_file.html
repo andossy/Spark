@@ -1,0 +1,282 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>generate_cru_geometry_file module &mdash; hpc-ca geometry utils 0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="hpc-ca geometry utils 0.1 documentation" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> hpc-ca geometry utils
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <!-- Local TOC -->
+                <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">generate_cru_geometry_file module</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">hpc-ca geometry utils</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>generate_cru_geometry_file module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/generate_cru_geometry_file.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-generate_cru_geometry_file">
+<span id="generate-cru-geometry-file-module"></span><h1>generate_cru_geometry_file module<a class="headerlink" href="#module-generate_cru_geometry_file" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="generate_cru_geometry_file.generate_cru_geometry_file">
+<code class="descclassname">generate_cru_geometry_file.</code><code class="descname">generate_cru_geometry_file</code><span class="sig-paren">(</span><em>ryr</em>, <em>jsr</em>, <em>nsr</em>, <em>tt=None</em>, <em>nz=168</em>, <em>nsr_height=None</em>, <em>nsr_volume=None</em>, <em>nsr_ratio=None</em>, <em>cleft_size=1</em>, <em>jsr_thickness=3</em>, <em>double=True</em>, <em>basename='sarcomere_geometry'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/generate_cru_geometry_file.html#generate_cru_geometry_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generate_cru_geometry_file.generate_cru_geometry_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a 3D voxel geometry from 2D arrays.</p>
+<p>Take RyR, jSR and nSR positions as 2D boolean arrays and produce
+a 3D voxel geometry that is saved to a h5 file. Each voxel is
+12x12x12 microns, and the 2D arrays are expected to have the same
+resolution.</p>
+<p>The height of the nSR columns can be given either as the height, in number
+of voxels, or as the volume of the nSR, either in absolute value, or as
+a ratio of total volume</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ryr</strong> &#8211; (m, n) boolean array</li>
+<li><strong>jsr</strong> &#8211; (m, n) boolean array</li>
+<li><strong>nsr</strong> &#8211; (m, n) boolean array</li>
+<li><strong>nz</strong> &#8211; int, number of voxels in z-direction [12 nm]</li>
+<li><strong>nsr_height</strong> &#8211; height of nsr in voxels, assumes height is max if None</li>
+<li><strong>nsr_volume</strong> &#8211; volume of nsr in voxels</li>
+<li><strong>nsr_ratio</strong> &#8211; ratio of nsr to total volume</li>
+<li><strong>cleft_size</strong> &#8211; int, width of cleft in voxels</li>
+<li><strong>jsr_thickness</strong> &#8211; int, jSR thickness in z-iredction in voxels</li>
+<li><strong>double</strong> &#8211; boolean, save to h5 with double float precision</li>
+<li><strong>basename</strong> &#8211; name of h5 file to save to</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="generate_cru_geometry_file.ppm_to_arrays">
+<code class="descclassname">generate_cru_geometry_file.</code><code class="descname">ppm_to_arrays</code><span class="sig-paren">(</span><em>infile</em>, <em>width</em>, <em>jsr_layers</em>, <em>subdivide=3</em>, <em>nsr_width=3.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/generate_cru_geometry_file.html#ppm_to_arrays"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generate_cru_geometry_file.ppm_to_arrays" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a ppm and create boolean arrays for ryr, jsr and nsr.</p>
+<p>A .ppm is read, assuming a resolution of 36 nm. From these
+RyR locations, the jSR is created by selecting the area surrounding RyR.
+The RyR and jSR arrays are then refined to a finer grid. Finally the nSR
+column locations are selected by surrounding the refined RyR locations</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>infile</strong> (<em>str</em>) &#8211; name of .ppm file (with or without extension)</li>
+<li><strong>width</strong> (<em>int</em>) &#8211; number of voxels in each direction [36 nm]</li>
+<li><strong>subdivide</strong> (<em>int</em>) &#8211; number of subpixels to split each pixel into</li>
+<li><strong>jsr_layers</strong> (<em>int</em>) &#8211; nr of layers of jSR around RyR</li>
+<li><strong>nsr_width</strong> &#8211; size of nSR columns around RyR</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="generate_cru_geometry_file.ppm_to_geomfile">
+<code class="descclassname">generate_cru_geometry_file.</code><code class="descname">ppm_to_geomfile</code><span class="sig-paren">(</span><em>infile</em>, <em>outfile</em>, <em>pad</em>, <em>save2d_pdf=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/generate_cru_geometry_file.html#ppm_to_geomfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#generate_cru_geometry_file.ppm_to_geomfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a ppm file and generate a 2x2x2 um geometry h5 file.</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Jonas van den Brink.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

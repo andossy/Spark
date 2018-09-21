@@ -1,0 +1,586 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>geometry_util &mdash; hpc-ca geometry utils 0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="hpc-ca geometry utils 0.1 documentation" href="../index.html"/>
+        <link rel="up" title="Module code" href="index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> hpc-ca geometry utils
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../generate_cru_geometry_file.html">generate_cru_geometry_file module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generate_parameters.html">generate_parameters module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../geometry_util.html">geometry_util module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../growth.html">growth module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../h5files.html">h5files module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../visualize_geometry.html">visualize_geometry module</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">hpc-ca geometry utils</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>geometry_util</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for geometry_util</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+
+<div class="viewcode-block" id="read_ppm"><a class="viewcode-back" href="../geometry_util.html#geometry_util.read_ppm">[docs]</a><span class="k">def</span> <span class="nf">read_ppm</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a .ppm file and return a boolean array.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        Name of the infile.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray</span>
+<span class="sd">        A 2D boolean array, with shape given by input image.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">basestring</span><span class="p">),</span> <span class="s2">&quot;filename must be a string&quot;</span>
+
+    <span class="c1"># Add extension if missing</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span> <span class="k">if</span> <span class="n">filename</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span> <span class="o">==</span> <span class="s2">&quot;.ppm&quot;</span> <span class="k">else</span> <span class="n">filename</span> <span class="o">+</span> <span class="s2">&quot;.ppm&quot;</span>
+
+    <span class="c1"># Read data and convert to boolean array</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">[:,</span> <span class="p">:]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="trim_to_bbox"><a class="viewcode-back" href="../geometry_util.html#geometry_util.trim_to_bbox">[docs]</a><span class="k">def</span> <span class="nf">trim_to_bbox</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">flip</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Trim a boolean 2D array down to its bounding box.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : numpy.ndarray</span>
+<span class="sd">        A boolean 2D array</span>
+<span class="sd">    flip : bool, optional</span>
+<span class="sd">        If true, image is transposed so first dimension is the smallest</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray</span>
+<span class="sd">        An array of only the bounding box of the input.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;expected 2D array&quot;</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    
+    <span class="c1"># Make sure bounding box exists</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input array is empty.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Find bounding box</span>
+    <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+    <span class="n">bbox</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">x0</span><span class="p">:(</span><span class="n">x1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">y0</span><span class="p">:(</span><span class="n">y1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+
+    <span class="c1"># Transpose if needed</span>
+    <span class="k">if</span> <span class="n">flip</span> <span class="ow">and</span> <span class="n">bbox</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">bbox</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">bbox</span> <span class="o">=</span> <span class="n">bbox</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">bbox</span></div>
+
+
+<div class="viewcode-block" id="pad_array"><a class="viewcode-back" href="../geometry_util.html#geometry_util.pad_array">[docs]</a><span class="k">def</span> <span class="nf">pad_array</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">final_shape</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Pad a 2D array with zeros to create an array of desired shape.</span>
+
+<span class="sd">    First an array of the desired shape is created and initialized</span>
+<span class="sd">    to zero, then the input array is centered in the new array.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : numpy.ndarray</span>
+<span class="sd">        Input array </span>
+<span class="sd">    shape : tuple of int</span>
+<span class="sd">        The shape of the output</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray</span>
+<span class="sd">        An array of the specificed output shape, </span>
+<span class="sd">        with the input array at the center.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">final_shape</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;expected 2D array&quot;</span>
+    <span class="k">assert</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;input too large </span><span class="si">%d</span><span class="s2"> &gt; </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">y</span> <span class="o">&gt;=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;input too large </span><span class="si">%d</span><span class="s2"> &gt; </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="p">)</span>
+
+    <span class="n">augmented</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">bool</span><span class="p">)</span>
+    <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">x0</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">dx</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">y0</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">dy</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">x1</span> <span class="o">=</span> <span class="n">x0</span> <span class="o">+</span> <span class="n">dx</span>
+    <span class="n">y1</span> <span class="o">=</span> <span class="n">y0</span> <span class="o">+</span> <span class="n">dy</span>
+    <span class="n">augmented</span><span class="p">[</span><span class="n">x0</span><span class="p">:</span><span class="n">x1</span><span class="p">,</span> <span class="n">y0</span><span class="p">:</span><span class="n">y1</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
+    <span class="k">return</span> <span class="n">augmented</span></div>
+
+
+<div class="viewcode-block" id="create_jsr"><a class="viewcode-back" href="../geometry_util.html#geometry_util.create_jsr">[docs]</a><span class="k">def</span> <span class="nf">create_jsr</span><span class="p">(</span><span class="n">ryr</span><span class="p">,</span> <span class="n">layers</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a jSR neighborhood from RyR locations.</span>
+
+<span class="sd">    jSR is assumed to be found surrounding RyR, a neighborhood</span>
+<span class="sd">    is therefore made by first copying the RyR array and then </span>
+<span class="sd">    padding it with the given number of layers.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ryr : numpy.ndarray</span>
+<span class="sd">        A 2D boolean array of RyR locations</span>
+<span class="sd">    layers : int</span>
+<span class="sd">        The number of jSR to pad around each RyR</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray</span>
+<span class="sd">        An array of jSR locations, of the same shape as the input RyR array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">ryr</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;expected 2D array&quot;</span>
+    
+    <span class="c1"># Check there is space in array</span>
+    <span class="n">Nx</span><span class="p">,</span> <span class="n">Ny</span> <span class="o">=</span> <span class="n">ryr</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">ryr</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">pad</span> <span class="o">&gt;</span> <span class="nb">min</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="ow">or</span> <span class="n">pad</span> <span class="o">&gt;</span> <span class="nb">min</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="ow">or</span> <span class="n">pad</span> <span class="o">&gt;=</span> <span class="n">Nx</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="ow">or</span> <span class="n">pad</span> <span class="o">&gt;=</span> <span class="n">Ny</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Padding is so large the jSR will go out of bounds&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Pad iteratively</span>
+    <span class="n">jsr</span> <span class="o">=</span> <span class="n">ryr</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">pad</span><span class="p">):</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">jsr</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">jsr</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">tmp</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+=</span> <span class="n">jsr</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span> <span class="p">:]</span>
+        <span class="n">tmp</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">+=</span> <span class="n">jsr</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">tmp</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">jsr</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span>
+        <span class="n">jsr</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>    
+    <span class="k">return</span> <span class="n">jsr</span></div>
+
+<div class="viewcode-block" id="shrink_sr"><a class="viewcode-back" href="../geometry_util.html#geometry_util.shrink_sr">[docs]</a><span class="k">def</span> <span class="nf">shrink_sr</span><span class="p">(</span><span class="n">sr</span><span class="p">,</span> <span class="n">layers</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Shrink SR by the given number of layers.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sr : numpy.ndarray</span>
+<span class="sd">        the boolean 2D array to be shrunk</span>
+<span class="sd">    layers : int</span>
+<span class="sd">        number of layers to shrink</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray</span>
+<span class="sd">        An array of the same shape as the input, with the SR shrunk.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;expected 2D array&quot;</span>
+    <span class="n">shrunk</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">layers</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">shrunk</span><span class="p">[</span><span class="n">i</span><span class="p">:,</span> <span class="p">:]</span> <span class="o">*=</span> <span class="n">data</span><span class="p">[:</span><span class="o">-</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">shrunk</span><span class="p">[:</span><span class="o">-</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*=</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">:,</span> <span class="p">:]</span>
+        <span class="n">shrunk</span><span class="p">[:,</span> <span class="n">i</span><span class="p">:]</span> <span class="o">*=</span> <span class="n">data</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">shrunk</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="n">i</span><span class="p">]</span> <span class="o">*=</span> <span class="n">data</span><span class="p">[:,</span> <span class="n">i</span><span class="p">:]</span>
+    <span class="k">return</span> <span class="n">shrunk</span></div>
+ 
+<div class="viewcode-block" id="prune_ryrs"><a class="viewcode-back" href="../geometry_util.html#geometry_util.prune_ryrs">[docs]</a><span class="k">def</span> <span class="nf">prune_ryrs</span><span class="p">(</span><span class="n">ryr</span><span class="p">,</span> <span class="n">prune_inds</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Remove RyRs specified by index.</span>
+
+<span class="sd">    The index of a ryr is given by the ordering</span>
+<span class="sd">    of ``numpy.ndarray.nonzero``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ryr : numpy.ndarray</span>
+<span class="sd">        Boolean 2D array of RyR locations</span>
+<span class="sd">    prune_inds : int or tuple of int</span>
+<span class="sd">        Inidices of RyR to be pruned</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray</span>
+<span class="sd">        An array of same shape as input, with certain RyR removed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">ind</span><span class="p">,</span> <span class="p">(</span><span class="n">x_ind</span><span class="p">,</span> <span class="n">y_ind</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="o">.</span><span class="n">nonzero</span><span class="p">())):</span>
+        <span class="k">if</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">prune_inds</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">x_ind</span><span class="p">,</span> <span class="n">y_ind</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="refine_ryr"><a class="viewcode-back" href="../geometry_util.html#geometry_util.refine_ryr">[docs]</a><span class="k">def</span> <span class="nf">refine_ryr</span><span class="p">(</span><span class="n">ryr</span><span class="p">,</span> <span class="n">subdivide</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Increase resolution of RyR array.</span>
+
+<span class="sd">    A RyR array is refined by marking only the center subpixel as a RyR. </span>
+<span class="sd">    </span>
+<span class="sd">    The standard case is that the input image is given with a resolution</span>
+<span class="sd">    of 36x36 microns per pixel. Each pixel is then split into 9 pixels of </span>
+<span class="sd">    size 12x12 microns.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ryr : numpy.ndarray</span>
+<span class="sd">        A 2D boolean array denoting RyR locations, </span>
+<span class="sd">        most likely in 36x36 micron resolution</span>
+<span class="sd">    subdivide : int, optional</span>
+<span class="sd">        The number of subpixels each pixel is divided into, must be odd numbered</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray</span>
+<span class="sd">        A 2D boolean array of larger shape than input.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">ryr</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;expected 2D array&quot;</span>
+    <span class="k">assert</span> <span class="n">subdivide</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;have to subdivide pixels into odd nr of pixels&quot;</span>
+    <span class="n">Nx</span><span class="p">,</span> <span class="n">Ny</span> <span class="o">=</span> <span class="n">ryr</span><span class="o">.</span><span class="n">shape</span> 
+    <span class="n">highres</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Nx</span><span class="o">*</span><span class="n">subdivide</span><span class="p">,</span> <span class="n">Ny</span><span class="o">*</span><span class="n">subdivide</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">bool</span><span class="p">)</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">x_ind</span><span class="p">,</span> <span class="n">y_ind</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">ryr</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()):</span>
+        <span class="n">highres</span><span class="p">[</span><span class="n">x_ind</span><span class="o">*</span><span class="n">subdivide</span><span class="o">+</span><span class="n">subdivide</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">y_ind</span><span class="o">*</span><span class="n">subdivide</span><span class="o">+</span><span class="n">subdivide</span><span class="o">/</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">highres</span></div>
+
+<div class="viewcode-block" id="refine_jsr"><a class="viewcode-back" href="../geometry_util.html#geometry_util.refine_jsr">[docs]</a><span class="k">def</span> <span class="nf">refine_jsr</span><span class="p">(</span><span class="n">jsr</span><span class="p">,</span> <span class="n">subdivide</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">smoothen_corners</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+               <span class="n">remove_edges</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Increase resolution of jSR data.</span>
+
+<span class="sd">    A jSR array is refined by marking all subpixels as jSR. For subpixels </span>
+<span class="sd">    belonging to a pixel not originally marked as jSR, but being located</span>
+<span class="sd">    at a &#39;corner&#39;, this corner can be partially filled in to get a smoother </span>
+<span class="sd">    jSR after refinement. If the jSR extends to the borders of the image, </span>
+<span class="sd">    the outermost edge of subpixels can also be trimmed. </span>
+
+<span class="sd">    The standard case is that the input image is given with a resolution</span>
+<span class="sd">    of 36x36 microns per pixel. Each pixel is then split into 9 pixels of </span>
+<span class="sd">    size 12x12 microns.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    jsr : numpy.ndarray</span>
+<span class="sd">        Array designating location of jSR</span>
+<span class="sd">    subdivide : int, optional</span>
+<span class="sd">        The number of subpixels each pixel is divided into, must be odd numbered</span>
+<span class="sd">    smoothen_corners : bool, optional</span>
+<span class="sd">        If true, corners in the refinement are smoothed </span>
+<span class="sd">    remove_edges : bool, optional</span>
+<span class="sd">        Remove all jSR subpixels at the outermost edge of the array</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray2</span>
+<span class="sd">        Athe 2D boolean array of larger shape than input.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">jsr</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;expected 2D array&quot;</span>
+    <span class="n">Nx</span><span class="p">,</span> <span class="n">Ny</span> <span class="o">=</span> <span class="n">jsr</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">highres</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Nx</span><span class="o">*</span><span class="n">subdivide</span><span class="p">,</span> <span class="n">Ny</span><span class="o">*</span><span class="n">subdivide</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">bool</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">subdivide</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">subdivide</span><span class="p">):</span>
+            <span class="n">highres</span><span class="p">[</span><span class="n">i</span><span class="p">::</span><span class="n">subdivide</span><span class="p">,</span> <span class="n">j</span><span class="p">::</span><span class="n">subdivide</span><span class="p">]</span> <span class="o">=</span> <span class="n">jsr</span>
+
+    <span class="k">if</span> <span class="n">smoothen_corners</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">subdivide</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">down_diag</span> <span class="o">=</span> <span class="n">highres</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">highres</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span>
+            <span class="n">up_diag</span> <span class="o">=</span> <span class="n">highres</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">highres</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span> <span class="mi">1</span><span class="p">:]</span>
+            
+            <span class="n">highres</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">+=</span> <span class="n">down_diag</span>
+            <span class="n">highres</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">up_diag</span>  
+            <span class="n">highres</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">+=</span> <span class="n">up_diag</span>
+            <span class="n">highres</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">down_diag</span>  
+
+    <span class="k">if</span> <span class="n">remove_edges</span><span class="p">:</span>
+        <span class="n">highres</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span>  <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">highres</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,:]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">highres</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span>  <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">highres</span><span class="p">[:,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="k">return</span> <span class="n">highres</span></div>
+
+<div class="viewcode-block" id="create_nsr"><a class="viewcode-back" href="../geometry_util.html#geometry_util.create_nsr">[docs]</a><span class="k">def</span> <span class="nf">create_nsr</span><span class="p">(</span><span class="n">ryr</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create the nSR column 2D template by centering them around RyR.</span>
+
+<span class="sd">    The default nSR column width supposes that the RyR array has already</span>
+<span class="sd">    been refined. If using an unrefined RyR array, the normal width would </span>
+<span class="sd">    be 1.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ryr : numpy.ndarray</span>
+<span class="sd">        A refined RyR array (12x12 microns)</span>
+<span class="sd">    width : int, optional</span>
+<span class="sd">        The width of each nSR column around each RyR</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">ryr</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;expected 2D array&quot;</span>
+    <span class="n">nsr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ryr</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">bool</span><span class="p">)</span>
+
+    <span class="n">d</span> <span class="o">=</span> <span class="n">width</span><span class="o">/</span><span class="mi">2</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">ryr</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">nsr</span><span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="n">nsr</span></div>
+    <span class="c1"># Alternative nSR method</span>
+    <span class="c1"># Find nSR columns by shrinking jSR to desired nSR to jSR fraction</span>
+    <span class="c1"># min_frac_nsr_jsr = 0.05</span>
+    <span class="c1"># while nsr_2d.sum()*1.0/jsr_2d.sum() &gt; min_frac_nsr_jsr:</span>
+    <span class="c1">#     nsr_2d = gu.shrink_sr(nsr_2d, 1)</span>
+
+<div class="viewcode-block" id="pprint_array"><a class="viewcode-back" href="../geometry_util.html#geometry_util.pprint_array">[docs]</a><span class="k">def</span> <span class="nf">pprint_array</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="s1">&#39;0&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Pretty print a boolean 2D array.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : numpy.ndarray</span>
+<span class="sd">        A 2D boolean array to be printed </span>
+<span class="sd">    t : str, optional</span>
+<span class="sd">        Symbol to use for true values </span>
+<span class="sd">    f : str, optional</span>
+<span class="sd">        Symbol to use for false values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">row</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="n">t</span> <span class="k">if</span> <span class="n">element</span> <span class="k">else</span> <span class="n">f</span><span class="p">,</span>
+        <span class="nb">print</span> <span class="s2">&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="plot_array"><a class="viewcode-back" href="../geometry_util.html#geometry_util.plot_array">[docs]</a><span class="k">def</span> <span class="nf">plot_array</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">psize</span><span class="o">=</span><span class="mi">36</span><span class="n">e</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Greys_r&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Plot a 2D array.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : numpy.ndarray</span>
+<span class="sd">        A array to be plotted</span>
+<span class="sd">    title : str, optional</span>
+<span class="sd">        Title to add to the plot</span>
+<span class="sd">    psize : float, optional</span>
+<span class="sd">        Size of each pixel in microns, relevant for labeling of the axis</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword argments to be passed along to matplotlib.pyplot.imshow</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">m</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;lower&quot;</span><span class="p">,</span> 
+               <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">m</span><span class="o">*</span><span class="n">psize</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="o">*</span><span class="n">psize</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">r&quot;$x\ [\mathrm{\mu</span><span class="si">{}</span><span class="s2">m}]$&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">r&quot;$y\ [\mathrm{\mu</span><span class="si">{}</span><span class="s2">m}]$&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="save_combined_2D_pdf"><a class="viewcode-back" href="../geometry_util.html#geometry_util.save_combined_2D_pdf">[docs]</a><span class="k">def</span> <span class="nf">save_combined_2D_pdf</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">ryr</span><span class="p">,</span> <span class="n">jsr</span><span class="p">,</span> <span class="n">nsr</span><span class="p">,</span> <span class="n">psize</span><span class="o">=</span><span class="mi">12</span><span class="n">e</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Greys_r&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a pdf of the combined 2D arrays overlaid each other.</span>
+
+<span class="sd">    All arrays should be refined, i.e., 12x12 nm resolution.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        Basename of the resulting pdf file</span>
+<span class="sd">    ryr : numpy.ndarray</span>
+<span class="sd">        Location of RyR</span>
+<span class="sd">    jsr : numpy.ndarray</span>
+<span class="sd">        Location of jSR</span>
+<span class="sd">    nsr : numpy.ndarray</span>
+<span class="sd">        Location of nSR</span>
+<span class="sd">    psize : float, optional</span>
+<span class="sd">        Size of each pixel in microns, relevant for labeling of the axis</span>
+<span class="sd">    cmap : str, optional</span>
+<span class="sd">        Name of matplotlib colormap to use.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">combined</span> <span class="o">=</span> <span class="n">jsr</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+    <span class="n">combined</span> <span class="o">+=</span> <span class="n">nsr</span>
+    <span class="n">combined</span> <span class="o">+=</span> <span class="n">ryr</span>
+
+    <span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="n">cmap</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="n">plot_array</span><span class="p">(</span><span class="n">combined</span><span class="p">,</span> <span class="n">psize</span><span class="o">=</span><span class="n">psize</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+               <span class="n">title</span><span class="o">=</span><span class="s1">&#39;2D arrays overlaid&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+    <span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">ticks</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+    <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">([</span><span class="s1">&#39;Cytosol&#39;</span><span class="p">,</span> <span class="s1">&#39;jSR&#39;</span><span class="p">,</span> <span class="s1">&#39;nSR&#39;</span><span class="p">,</span> <span class="s1">&#39;RyR&#39;</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;pdf/</span><span class="si">{}</span><span class="s2">_2D.pdf&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Jonas van den Brink.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

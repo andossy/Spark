@@ -1,0 +1,58 @@
+#!/bin/bash
+# Job name:
+#SBATCH --job-name=calcium_sparks
+#
+# Project:
+#SBATCH --account=nn9249k
+#
+# Wall clock limit:
+#SBATCH --time='72:00:00'
+#
+# Max memory usage per task:
+#SBATCH --mem-per-cpu=4000M
+#
+# Number of tasks (cores):
+#SBATCH --ntasks=64
+
+## Set up job environment
+source /cluster/bin/jobsetup
+
+module load openmpi.gnu
+module load hdf5/1.8.12_gnu
+
+# Arguments to calcium sparks software
+CASENAME=casename
+#GEOMETRY=test_geometry_xy_14_z_14_N_RyR_1_double.h5
+GEOMETRY=test_geometry_xy_28_z_28_N_RyR_5_double.h5
+#GEOMETRY=test_geometry_xy_56_z_28_N_RyR_1_double.h5
+#GEOMETRY=test_geometry_xy_56_z_56_N_RyR_117_double.h5
+#PARAMETERS=parameters_double_Ca.h5
+#PARAMETERS=parameters_double_Ca_Fluo.h5
+PARAMETERS=parameters_double.h5
+
+TSTOP=.001
+REACTION_DT="-T 5e-5"
+STOCHASTIC_DT="-D 5e-5"
+SAVE_DT=0.0001
+SIM_RES=2
+ADDITIONAL_ARGS="-v -O ryr 0 1 2 3 4"
+
+## Set up input and output files:
+APP="calcium_sparks "
+
+# Copy files to the scratch directory where all jobs should be done. It's name
+# is stored in variable $SCRATCH
+cp $GEOMETRY $SCRATCH
+cp $PARAMETERS $SCRATCH
+cp $APP $SCRATCH
+
+# Copy resultant files to the directory the command sbatch was run from.
+# The scratch directory is removed after the job is completed so this step
+# is important.
+cleanup "cp -r $SCRATCH/$CASENAME.h5 $SUBMITDIR/"
+
+# Enter the scratch directory and run the command.
+cd $SCRATCH
+mpirun $APP --geometry_file=$GEOMETRY --species_file=$PARAMETERS \
+       -t $TSTOP -o $SAVE_DT -h $SIM_RES --casename=$CASENAME \
+       $REACTION_DT $STOCHASTIC_DT $ADDITIONAL_ARGS

@@ -1,0 +1,380 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>visualize_geometry module &mdash; hpc-ca geometry utils 0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="hpc-ca geometry utils 0.1 documentation" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> hpc-ca geometry utils
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <!-- Local TOC -->
+                <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">visualize_geometry module</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">hpc-ca geometry utils</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>visualize_geometry module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/visualize_geometry.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-visualize_geometry">
+<span id="visualize-geometry-module"></span><h1>visualize_geometry module<a class="headerlink" href="#module-visualize_geometry" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="visualize_geometry.GeomtryVisualizer">
+<em class="property">class </em><code class="descclassname">visualize_geometry.</code><code class="descname">GeomtryVisualizer</code><span class="sig-paren">(</span><em>geometry_file</em>, <em>style=None</em>, <em>vizpath='visualize/'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualize_geometry.html#GeomtryVisualizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visualize_geometry.GeomtryVisualizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Class for visualizing a 3D geometry stored as a h5 file.</p>
+<p>The geometry is read from a single h5 file, vtk-compatible
+subfiles are then generated for each spatial domain and boundary.
+Users can then specify which domains and boundaries to show in
+the visualization.</p>
+<dl class="docutils">
+<dt>The spatial domains are designated by the following identificators</dt>
+<dd>0: cytosol
+1: cleft
+2: junctional sr
+3: non-junctional sr
+4: t-tubule</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#visualize_geometry.GeomtryVisualizer.create_bbox" title="visualize_geometry.GeomtryVisualizer.create_bbox"><code class="xref py py-obj docutils literal"><span class="pre">create_bbox</span></code></a>()</td>
+<td>Add a bounding box of the entire geometry to the visualization.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#visualize_geometry.GeomtryVisualizer.create_boundary_actor" title="visualize_geometry.GeomtryVisualizer.create_boundary_actor"><code class="xref py py-obj docutils literal"><span class="pre">create_boundary_actor</span></code></a>(key)</td>
+<td>Create a boundary actor for the given boundary.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#visualize_geometry.GeomtryVisualizer.create_boundary_actors" title="visualize_geometry.GeomtryVisualizer.create_boundary_actors"><code class="xref py py-obj docutils literal"><span class="pre">create_boundary_actors</span></code></a>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#visualize_geometry.GeomtryVisualizer.create_domain_actor" title="visualize_geometry.GeomtryVisualizer.create_domain_actor"><code class="xref py py-obj docutils literal"><span class="pre">create_domain_actor</span></code></a>(domain_id)</td>
+<td>Initialize a vtk actor for given spatial domain.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#visualize_geometry.GeomtryVisualizer.create_domain_actors" title="visualize_geometry.GeomtryVisualizer.create_domain_actors"><code class="xref py py-obj docutils literal"><span class="pre">create_domain_actors</span></code></a>()</td>
+<td>Set up the actors of the domains that are to be visualized and add them to the renderer.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#visualize_geometry.GeomtryVisualizer.create_renderer" title="visualize_geometry.GeomtryVisualizer.create_renderer"><code class="xref py py-obj docutils literal"><span class="pre">create_renderer</span></code></a>()</td>
+<td>Set up a vtk renderer.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#visualize_geometry.GeomtryVisualizer.default_style" title="visualize_geometry.GeomtryVisualizer.default_style"><code class="xref py py-obj docutils literal"><span class="pre">default_style</span></code></a>()</td>
+<td>Default style to be used if none is given by user.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#visualize_geometry.GeomtryVisualizer.render" title="visualize_geometry.GeomtryVisualizer.render"><code class="xref py py-obj docutils literal"><span class="pre">render</span></code></a>()</td>
+<td>Create vtk-compatible files and vtk objects.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#visualize_geometry.GeomtryVisualizer.write_boundary_file" title="visualize_geometry.GeomtryVisualizer.write_boundary_file"><code class="xref py py-obj docutils literal"><span class="pre">write_boundary_file</span></code></a>(key)</td>
+<td>Write information about the given boundary to a .bnd file.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#visualize_geometry.GeomtryVisualizer.write_domain_file" title="visualize_geometry.GeomtryVisualizer.write_domain_file"><code class="xref py py-obj docutils literal"><span class="pre">write_domain_file</span></code></a>(domain_id)</td>
+<td>Creates a .vtk file for the given spatial domain.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="visualize_geometry.GeomtryVisualizer.create_bbox">
+<code class="descname">create_bbox</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualize_geometry.html#GeomtryVisualizer.create_bbox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visualize_geometry.GeomtryVisualizer.create_bbox" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a bounding box of the entire geometry to the visualization.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="visualize_geometry.GeomtryVisualizer.create_boundary_actor">
+<code class="descname">create_boundary_actor</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualize_geometry.html#GeomtryVisualizer.create_boundary_actor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visualize_geometry.GeomtryVisualizer.create_boundary_actor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a boundary actor for the given boundary.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>key</strong> &#8211; name of boundary</li>
+<li><strong>color</strong> &#8211; which color to use</li>
+<li><strong>labal</strong> &#8211; boolean, label each &#8216;voxel&#8217; of the boundary?</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="visualize_geometry.GeomtryVisualizer.create_boundary_actors">
+<code class="descname">create_boundary_actors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualize_geometry.html#GeomtryVisualizer.create_boundary_actors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visualize_geometry.GeomtryVisualizer.create_boundary_actors" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="visualize_geometry.GeomtryVisualizer.create_domain_actor">
+<code class="descname">create_domain_actor</code><span class="sig-paren">(</span><em>domain_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualize_geometry.html#GeomtryVisualizer.create_domain_actor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visualize_geometry.GeomtryVisualizer.create_domain_actor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize a vtk actor for given spatial domain.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>domain_id</strong> &#8211; which domain to visualize</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="visualize_geometry.GeomtryVisualizer.create_domain_actors">
+<code class="descname">create_domain_actors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualize_geometry.html#GeomtryVisualizer.create_domain_actors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visualize_geometry.GeomtryVisualizer.create_domain_actors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set up the actors of the domains that are to be visualized
+and add them to the renderer.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="visualize_geometry.GeomtryVisualizer.create_renderer">
+<code class="descname">create_renderer</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualize_geometry.html#GeomtryVisualizer.create_renderer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visualize_geometry.GeomtryVisualizer.create_renderer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set up a vtk renderer.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="visualize_geometry.GeomtryVisualizer.default_style">
+<code class="descname">default_style</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualize_geometry.html#GeomtryVisualizer.default_style"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visualize_geometry.GeomtryVisualizer.default_style" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default style to be used if none is given by user.</p>
+<p>Only jSR, nSR and RyR are shown by default.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="visualize_geometry.GeomtryVisualizer.render">
+<code class="descname">render</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualize_geometry.html#GeomtryVisualizer.render"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visualize_geometry.GeomtryVisualizer.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create vtk-compatible files and vtk objects.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="visualize_geometry.GeomtryVisualizer.write_boundary_file">
+<code class="descname">write_boundary_file</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualize_geometry.html#GeomtryVisualizer.write_boundary_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visualize_geometry.GeomtryVisualizer.write_boundary_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write information about the given boundary to a .bnd file.</p>
+<p>The boundary information in the h5 is specified by point-pairs
+(p1, p2), where the flux points from p1 to p2. We calculate the
+centerpoint between these and save it to the boundary file
+alongside which direction the flux points.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> &#8211; indentifier of the boundary, which is also its key
+in the h5 file.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="visualize_geometry.GeomtryVisualizer.write_domain_file">
+<code class="descname">write_domain_file</code><span class="sig-paren">(</span><em>domain_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/visualize_geometry.html#GeomtryVisualizer.write_domain_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visualize_geometry.GeomtryVisualizer.write_domain_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a .vtk file for the given spatial domain.</p>
+<p>Each point for the given spatial domain is written into a
+.vtk file along with metadata.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>domain_id</strong> &#8211; integer in the range [0, 4].</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Jonas van den Brink.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

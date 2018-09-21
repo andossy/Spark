@@ -1,0 +1,509 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>geometry_util module &mdash; hpc-ca geometry utils 0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="hpc-ca geometry utils 0.1 documentation" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> hpc-ca geometry utils
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <!-- Local TOC -->
+                <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">geometry_util module</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">hpc-ca geometry utils</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>geometry_util module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/geometry_util.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-geometry_util">
+<span id="geometry-util-module"></span><h1>geometry_util module<a class="headerlink" href="#module-geometry_util" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="geometry_util.create_jsr">
+<code class="descclassname">geometry_util.</code><code class="descname">create_jsr</code><span class="sig-paren">(</span><em>ryr</em>, <em>layers</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geometry_util.html#create_jsr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry_util.create_jsr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a jSR neighborhood from RyR locations.</p>
+<p>jSR is assumed to be found surrounding RyR, a neighborhood
+is therefore made by first copying the RyR array and then
+padding it with the given number of layers.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>ryr</strong> (<a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.11)"><em>numpy.ndarray</em></a>) &#8211; A 2D boolean array of RyR locations</li>
+<li><strong>layers</strong> (<em>int</em>) &#8211; The number of jSR to pad around each RyR</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">An array of jSR locations, of the same shape as the input RyR array</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.11)">numpy.ndarray</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="geometry_util.create_nsr">
+<code class="descclassname">geometry_util.</code><code class="descname">create_nsr</code><span class="sig-paren">(</span><em>ryr</em>, <em>width=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geometry_util.html#create_nsr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry_util.create_nsr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the nSR column 2D template by centering them around RyR.</p>
+<p>The default nSR column width supposes that the RyR array has already
+been refined. If using an unrefined RyR array, the normal width would
+be 1.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ryr</strong> (<a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.11)"><em>numpy.ndarray</em></a>) &#8211; A refined RyR array (12x12 microns)</li>
+<li><strong>width</strong> (<em>int</em><em>, </em><em>optional</em>) &#8211; The width of each nSR column around each RyR</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="geometry_util.pad_array">
+<code class="descclassname">geometry_util.</code><code class="descname">pad_array</code><span class="sig-paren">(</span><em>data</em>, <em>final_shape</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geometry_util.html#pad_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry_util.pad_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pad a 2D array with zeros to create an array of desired shape.</p>
+<p>First an array of the desired shape is created and initialized
+to zero, then the input array is centered in the new array.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data</strong> (<a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.11)"><em>numpy.ndarray</em></a>) &#8211; Input array</li>
+<li><strong>shape</strong> (<em>tuple of int</em>) &#8211; The shape of the output</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">An array of the specificed output shape,
+with the input array at the center.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.11)">numpy.ndarray</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="geometry_util.plot_array">
+<code class="descclassname">geometry_util.</code><code class="descname">plot_array</code><span class="sig-paren">(</span><em>data</em>, <em>title=''</em>, <em>psize=0.036</em>, <em>cmap='Greys_r'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geometry_util.html#plot_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry_util.plot_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a 2D array.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data</strong> (<a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.11)"><em>numpy.ndarray</em></a>) &#8211; A array to be plotted</li>
+<li><strong>title</strong> (<em>str</em><em>, </em><em>optional</em>) &#8211; Title to add to the plot</li>
+<li><strong>psize</strong> (<em>float</em><em>, </em><em>optional</em>) &#8211; Size of each pixel in microns, relevant for labeling of the axis</li>
+<li><strong>**kwargs</strong> &#8211; Keyword argments to be passed along to matplotlib.pyplot.imshow</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="geometry_util.pprint_array">
+<code class="descclassname">geometry_util.</code><code class="descname">pprint_array</code><span class="sig-paren">(</span><em>data</em>, <em>t='1'</em>, <em>f='0'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geometry_util.html#pprint_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry_util.pprint_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pretty print a boolean 2D array.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data</strong> (<a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.11)"><em>numpy.ndarray</em></a>) &#8211; A 2D boolean array to be printed</li>
+<li><strong>t</strong> (<em>str</em><em>, </em><em>optional</em>) &#8211; Symbol to use for true values</li>
+<li><strong>f</strong> (<em>str</em><em>, </em><em>optional</em>) &#8211; Symbol to use for false values</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="geometry_util.prune_ryrs">
+<code class="descclassname">geometry_util.</code><code class="descname">prune_ryrs</code><span class="sig-paren">(</span><em>ryr</em>, <em>prune_inds</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geometry_util.html#prune_ryrs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry_util.prune_ryrs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove RyRs specified by index.</p>
+<p>The index of a ryr is given by the ordering
+of <code class="docutils literal"><span class="pre">numpy.ndarray.nonzero</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>ryr</strong> (<a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.11)"><em>numpy.ndarray</em></a>) &#8211; Boolean 2D array of RyR locations</li>
+<li><strong>prune_inds</strong> (<em>int</em><em> or </em><em>tuple of int</em>) &#8211; Inidices of RyR to be pruned</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">An array of same shape as input, with certain RyR removed.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.11)">numpy.ndarray</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="geometry_util.read_ppm">
+<code class="descclassname">geometry_util.</code><code class="descname">read_ppm</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geometry_util.html#read_ppm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry_util.read_ppm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a .ppm file and return a boolean array.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) &#8211; Name of the infile.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A 2D boolean array, with shape given by input image.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.11)">numpy.ndarray</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="geometry_util.refine_jsr">
+<code class="descclassname">geometry_util.</code><code class="descname">refine_jsr</code><span class="sig-paren">(</span><em>jsr</em>, <em>subdivide=3</em>, <em>smoothen_corners=True</em>, <em>remove_edges=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geometry_util.html#refine_jsr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry_util.refine_jsr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Increase resolution of jSR data.</p>
+<p>A jSR array is refined by marking all subpixels as jSR. For subpixels
+belonging to a pixel not originally marked as jSR, but being located
+at a &#8216;corner&#8217;, this corner can be partially filled in to get a smoother
+jSR after refinement. If the jSR extends to the borders of the image,
+the outermost edge of subpixels can also be trimmed.</p>
+<p>The standard case is that the input image is given with a resolution
+of 36x36 microns per pixel. Each pixel is then split into 9 pixels of
+size 12x12 microns.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>jsr</strong> (<a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.11)"><em>numpy.ndarray</em></a>) &#8211; Array designating location of jSR</li>
+<li><strong>subdivide</strong> (<em>int</em><em>, </em><em>optional</em>) &#8211; The number of subpixels each pixel is divided into, must be odd numbered</li>
+<li><strong>smoothen_corners</strong> (<em>bool</em><em>, </em><em>optional</em>) &#8211; If true, corners in the refinement are smoothed</li>
+<li><strong>remove_edges</strong> (<em>bool</em><em>, </em><em>optional</em>) &#8211; Remove all jSR subpixels at the outermost edge of the array</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Athe 2D boolean array of larger shape than input.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy.ndarray2</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="geometry_util.refine_ryr">
+<code class="descclassname">geometry_util.</code><code class="descname">refine_ryr</code><span class="sig-paren">(</span><em>ryr</em>, <em>subdivide=3</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geometry_util.html#refine_ryr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry_util.refine_ryr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Increase resolution of RyR array.</p>
+<p>A RyR array is refined by marking only the center subpixel as a RyR.</p>
+<p>The standard case is that the input image is given with a resolution
+of 36x36 microns per pixel. Each pixel is then split into 9 pixels of
+size 12x12 microns.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>ryr</strong> (<a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.11)"><em>numpy.ndarray</em></a>) &#8211; A 2D boolean array denoting RyR locations,
+most likely in 36x36 micron resolution</li>
+<li><strong>subdivide</strong> (<em>int</em><em>, </em><em>optional</em>) &#8211; The number of subpixels each pixel is divided into, must be odd numbered</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A 2D boolean array of larger shape than input.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.11)">numpy.ndarray</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="geometry_util.save_combined_2D_pdf">
+<code class="descclassname">geometry_util.</code><code class="descname">save_combined_2D_pdf</code><span class="sig-paren">(</span><em>filename</em>, <em>ryr</em>, <em>jsr</em>, <em>nsr</em>, <em>psize=0.012</em>, <em>cmap='Greys_r'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geometry_util.html#save_combined_2D_pdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry_util.save_combined_2D_pdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a pdf of the combined 2D arrays overlaid each other.</p>
+<p>All arrays should be refined, i.e., 12x12 nm resolution.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>filename</strong> (<em>str</em>) &#8211; Basename of the resulting pdf file</li>
+<li><strong>ryr</strong> (<a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.11)"><em>numpy.ndarray</em></a>) &#8211; Location of RyR</li>
+<li><strong>jsr</strong> (<a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.11)"><em>numpy.ndarray</em></a>) &#8211; Location of jSR</li>
+<li><strong>nsr</strong> (<a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.11)"><em>numpy.ndarray</em></a>) &#8211; Location of nSR</li>
+<li><strong>psize</strong> (<em>float</em><em>, </em><em>optional</em>) &#8211; Size of each pixel in microns, relevant for labeling of the axis</li>
+<li><strong>cmap</strong> (<em>str</em><em>, </em><em>optional</em>) &#8211; Name of matplotlib colormap to use.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="geometry_util.shrink_sr">
+<code class="descclassname">geometry_util.</code><code class="descname">shrink_sr</code><span class="sig-paren">(</span><em>sr</em>, <em>layers</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geometry_util.html#shrink_sr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry_util.shrink_sr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shrink SR by the given number of layers.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sr</strong> (<a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.11)"><em>numpy.ndarray</em></a>) &#8211; the boolean 2D array to be shrunk</li>
+<li><strong>layers</strong> (<em>int</em>) &#8211; number of layers to shrink</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">An array of the same shape as the input, with the SR shrunk.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.11)">numpy.ndarray</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="geometry_util.trim_to_bbox">
+<code class="descclassname">geometry_util.</code><code class="descname">trim_to_bbox</code><span class="sig-paren">(</span><em>data</em>, <em>flip=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/geometry_util.html#trim_to_bbox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry_util.trim_to_bbox" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trim a boolean 2D array down to its bounding box.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data</strong> (<a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.11)"><em>numpy.ndarray</em></a>) &#8211; A boolean 2D array</li>
+<li><strong>flip</strong> (<em>bool</em><em>, </em><em>optional</em>) &#8211; If true, image is transposed so first dimension is the smallest</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">An array of only the bounding box of the input.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.11)">numpy.ndarray</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Jonas van den Brink.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
