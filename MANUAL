@@ -4,16 +4,12 @@ HOW TO GET:
 -----------
 The easiest way to get the software is to download it from:
 
-  https://bitbucket.org/simula-camo/hpc-ca
-  
-or 
-
-  hg clone hpc-ca ssh://hg@bitbucket.org/simula-camo/hpc-ca
+  https://github.com/andossy/Spark
 
 
 COMPILATION:
 ------------
-To compile the software, go to 'tests' subdirectory and run
+To compile the software, run
  ./make_and_copy.sh
  
 The script will compile the software located in code/fvm_mpin, and place
